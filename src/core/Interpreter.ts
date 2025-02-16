@@ -88,17 +88,21 @@ class Interpreter {
 
 					while (depth >= 0 && position < splitedCode.length) {
 						if (splitedCode[position].match(/\$if\[/i)) depth++;
-						if (splitedCode[position].match(/\$endif/i)) depth--;
+						if (splitedCode[position].match(/\$endif/i)) {
+							depth--;
+							if (depth === 0) break;
+						}
+
 						position++;
 					}
 
 					if (depth !== 0) {
-						console.log('Invalid $if usage: Missing endif');
+						console.log('Invalid $if usage: Missing $endif');
 						error = true;
 						break;
 					}
 
-					const BLOCK = splitedCode.slice(functionLine, position).join('\n');
+					const BLOCK = splitedCode.slice(functionLine, position + 1).join('\n');
 					const RESULT = await IF(BLOCK, this as InterpreterOptions);
 					currentCode = currentCode.replace(BLOCK, RESULT);
 					splitedCode = currentCode.split(/\n/);
@@ -259,7 +263,7 @@ class Interpreter {
 				}
 			}
 
-			if (lineFunctions.length > 0) functions.push(...lineFunctions.reverse());
+			if (lineFunctions.length > 0) functions.push(...lineFunctions);
 		}
 
 		return functions;
