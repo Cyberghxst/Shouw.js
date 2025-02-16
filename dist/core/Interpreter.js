@@ -47,7 +47,7 @@ class Interpreter {
             let functions = this.extractFunctions(code);
             if (functions.length === 0) return code;
             let currentCode = code;
-            let splitedCode = code.split(/\n/);
+            let splitedCode = currentCode.split(/\n/);
             for (const func of functions) {
                 if (func.toLowerCase() === '$if') {
                     let depth = 0;
@@ -79,6 +79,11 @@ class Interpreter {
                 if (!unpacked.all) continue;
                 const functionData = this.functions.get(func);
                 if (!functionData) continue;
+                if (functionData.brackets && !unpacked.brackets) {
+                    console.log(`Invalid ${func} usage: Missing brackets`);
+                    error = true;
+                    break;
+                }
                 const processedArgs = [];
                 if (unpacked.args.length > 0) {
                     for (const arg of unpacked.args) {
@@ -100,9 +105,9 @@ class Interpreter {
                         processedArgs,
                         this.Temporarily
                     )) ?? {};
-                // @ts-ignore
                 const result = DATA.result?.toString().escape() ?? '';
-                currentCode = currentCode.replace(unpacked.all, result.toString());
+                currentCode = currentCode.replace(unpacked.all, result);
+                splitedCode = currentCode.split(/\n/);
                 if (DATA.error === true) {
                     error = true;
                     break;
@@ -113,20 +118,20 @@ class Interpreter {
         result = await processFunction(result);
         this.code = result;
         return {
-            result: error ? null : this.code.unescape()
+            result: error ? null : this.code.unescape().trim()
         };
     }
     unpack(func, code) {
         const funcStart = code.indexOf(func);
         if (funcStart === -1) return { func, args: [], brackets: false, all: null };
         if (funcStart > 0 && code[funcStart - 1] === '$') {
-            return { func, args: [], brackets: false, all: null };
+            return { func, args: [], brackets: false, all: func };
         }
         const openBracketIndex = code.indexOf('[', funcStart);
         if (openBracketIndex === -1) return { func, args: [], brackets: false, all: func };
         const textBetween = code.slice(funcStart + func.length, openBracketIndex).trim();
         if (textBetween.includes('$')) {
-            return { func, args: [], brackets: false, all: null };
+            return { func, args: [], brackets: false, all: func };
         }
         let bracketStack = 0;
         let closeBracketIndex = openBracketIndex;
@@ -140,8 +145,8 @@ class Interpreter {
             }
             closeBracketIndex++;
         }
-        if (closeBracketIndex === code.length || bracketStack > 0) {
-            return { func, args: [], brackets: false, all: null };
+        if (closeBracketIndex >= code.length || bracketStack > 0) {
+            return { func, args: [], brackets: false, all: func };
         }
         const argsStr = code.slice(openBracketIndex + 1, closeBracketIndex).trim();
         const args = this.extractArguments(argsStr);
@@ -190,7 +195,7 @@ class Interpreter {
                     lineFunctions.push(matchingFunctions.sort((a, b) => b.length - a.length)[0]);
                 }
             }
-            if (lineFunctions.length > 0) functions.push(...lineFunctions);
+            if (lineFunctions.length > 0) functions.push(...lineFunctions.reverse());
         }
         return functions;
     }

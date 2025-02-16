@@ -1,18 +1,21 @@
-const { ShouwClient, Interpreter, CheckCondition } = require('../dist');
+const { ShouwClient, Interpreter } = require('../dist');
+const client = new ShouwClient({ intents: [] });
 
-const client = new ShouwClient({
-	intents: []
-});
-
-const code = `$if[uwu==uwu]
-fist block
+const code = `
+$if[$checkCondition[meow==uwu]==false]
+first block
 $elseif[uwu==owo]
 second block
 $endelseif
 $else
 third block
 $endif
-$checkCondition[hello==hello]`;
+$description[params;but;not;closed
+$description[uwu]
+`;
+
+console.log('CODE:\n\n' + code + '\n\n');
+const now = Date.now();
 
 new Interpreter(
 	{
@@ -22,7 +25,9 @@ new Interpreter(
 	{
 		client
 	}
-).initialize();
-
-// Test simple condition
-console.log('Test condition:', CheckCondition.solve('meow==meow'));
+)
+	.initialize()
+	.then((x) => {
+		console.log('\n\nRESULT:\n\n' + x.result);
+		console.log(`\n${Date.now() - now}ms\n\n\n`);
+	});
