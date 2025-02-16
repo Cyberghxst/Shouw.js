@@ -10,13 +10,13 @@ export async function IF(code: string, ctx: InterpreterOptions) {
 			return code;
 		}
 
-		const everything = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
+		const everything: string = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
 		statement = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
 
-		let condition = statement.split(/\n/)[0].trim();
+		let condition: string = statement.split(/\n/)[0].trim();
 		condition = condition.slice(0, condition.length - 1);
 
-		const pass =
+		const pass: boolean =
 			(
 				await new Interpreter(
 					{
@@ -27,8 +27,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
 				).initialize()
 			).result === 'true';
 
-		const elseIfAction = 'meow';
-		const elseIfs = {};
+		const elseIfAction: RegExpMatchArray | null = statement.match(/\$elseif/i);
+		const elseIfs: object = {};
 
 		if (statement.match(/\$elseif/i)) {
 			for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
@@ -37,8 +37,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
 					return code;
 				}
 
-				const inside = data.split(/\$endelseIf/gi)[0];
-				let elseifCondition = inside.split(/\n/)[0].trim();
+				const inside: string = data.split(/\$endelseIf/gi)[0];
+				let elseifCondition: string = inside.split(/\n/)[0].trim();
 				elseifCondition = elseifCondition.slice(0, elseifCondition.length - 1);
 				elseIfs[elseifCondition] = inside.split(/\n/).slice(1).join('\n');
 
@@ -46,8 +46,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
 			}
 		}
 
-		const elseAction = statement.match(/\$else/i);
-		const ifCode = elseAction
+		const elseAction: RegExpMatchArray | null = statement.match(/\$else/i);
+		const ifCode: string = elseAction
 			? statement
 					.split('\n')
 					.slice(1)
@@ -59,15 +59,15 @@ export async function IF(code: string, ctx: InterpreterOptions) {
 					.join('\n')
 					.split(/\$endif/gi)[0];
 
-		const elseCode = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
+		const elseCode: string = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
 
-		let passes = false;
-		let lastCode;
+		let passes: boolean = false;
+		let lastCode: string = '';
 
 		if (elseIfAction) {
 			for (const data of Object.entries(elseIfs)) {
 				if (!passes) {
-					const response =
+					const response: boolean =
 						(
 							await new Interpreter(
 								{

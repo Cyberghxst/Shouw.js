@@ -24,7 +24,7 @@ async function IF(code, ctx) {
                     ctx
                 ).initialize()
             ).result === 'true';
-        const elseIfAction = 'meow';
+        const elseIfAction = statement.match(/\$elseif/i);
         const elseIfs = {};
         if (statement.match(/\$elseif/i)) {
             for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
@@ -53,7 +53,7 @@ async function IF(code, ctx) {
                   .split(/\$endif/gi)[0];
         const elseCode = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
         let passes = false;
-        let lastCode;
+        let lastCode = '';
         if (elseIfAction) {
             for (const data of Object.entries(elseIfs)) {
                 if (!passes) {
