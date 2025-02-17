@@ -12,16 +12,16 @@ console.log('CODE:\n\n' + code + '\n\n');
 const now = Date.now();
 
 new Interpreter(
-	{
-		name: 'test',
-		code: code
-	},
-	{
-		client
-	}
+    {
+        name: 'test',
+        code: code
+    },
+    {
+        client
+    }
 )
-	.initialize()
-	.then((x) => {
-		console.log('\n\nRESULT:\n\n' + x.result);
-		console.log(`\n${Date.now() - now}ms\n\n\n`);
-	});
+    .initialize()
+    .then(x => {
+        console.log('\n\nRESULT:\n\n' + x.result);
+        console.log(`\n${Date.now() - now}ms\n\n\n`);
+    });

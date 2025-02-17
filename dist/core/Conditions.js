@@ -29,14 +29,13 @@ class CheckCondition {
     static solveEqual(msg) {
         let pass = true;
         const parts = msg.split('==').map(part => part.trim());
-        if (parts[0].unescape() !== parts[1].unescape()) pass = false;
+        if (parts[0].unescape() === parts[1].unescape()) pass = true;
         return pass;
     }
     static solveNotEqual(msg) {
-        let pass = true;
+        let pass = false;
         const parts = msg.split('!=');
-        // @ts-ignore
-        if (parts[0].unescape() === parts[1].unescape()) pass = false;
+        if (parts[0].unescape() !== parts[1].unescape()) pass = false;
         return pass;
     }
     static solveGreater(msg) {

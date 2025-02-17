@@ -48,7 +48,7 @@ class Interpreter {
             if (functions.length === 0) return code;
             let currentCode = code;
             for (let func of functions) {
-                if (func.match(/^\$if/i)) {
+                if (func.match(/^\$if$/i)) {
                     currentCode = await processFunction(await (0, IF_1.IF)(currentCode, this));
                     break;
                 }
@@ -66,6 +66,9 @@ class Interpreter {
                     for (const arg of unpacked.args) {
                         if (!arg || typeof arg !== 'string') {
                             processedArgs.push(void 0);
+                            continue;
+                        } else if (typeof arg === 'string' && !arg.match(/\$/g)) {
+                            processedArgs.push(arg);
                             continue;
                         }
                         const processed = await processFunction(arg);
