@@ -32,7 +32,7 @@ class Interpreter {
             unescape: str => str.unescape(),
             escape: str => str.escape()
         };
-        this.Temporarily = {
+        this.Temporarily = options.Temporarily ?? {
             arrays: {},
             variables: {},
             splits: [],
@@ -47,36 +47,10 @@ class Interpreter {
             let functions = this.extractFunctions(code);
             if (functions.length === 0) return code;
             let currentCode = code;
-            let splitedCode = currentCode.split(/\n/);
-            for (const func of functions) {
-                if (func.toLowerCase() === '$if') {
-                    let depth = 0;
-                    let position = 0;
-                    const functionLine = splitedCode.findIndex(code => {
-                        const lines = code
-                            ?.toLowerCase()
-                            .split(' ')
-                            .map(x => x.trim());
-                        return lines.some(line => line.startsWith(func));
-                    });
-                    while (depth >= 0 && position < splitedCode.length) {
-                        if (splitedCode[position].match(/\$if\[/i)) depth++;
-                        if (splitedCode[position].match(/\$endif/i)) {
-                            depth--;
-                            if (depth === 0) break;
-                        }
-                        position++;
-                    }
-                    if (depth !== 0) {
-                        console.log('Invalid $if usage: Missing $endif');
-                        error = true;
-                        break;
-                    }
-                    const BLOCK = splitedCode.slice(functionLine, position + 1).join('\n');
-                    const RESULT = await (0, IF_1.IF)(BLOCK, this);
-                    currentCode = currentCode.replace(BLOCK, RESULT);
-                    splitedCode = currentCode.split(/\n/);
-                    functions = this.extractFunctions(currentCode);
+            for (let func of functions) {
+                if (func.match(/^\$if/i)) {
+                    currentCode = await processFunction(await (0, IF_1.IF)(currentCode, this));
+                    break;
                 }
                 const unpacked = this.unpack(func, currentCode);
                 if (!unpacked.all) continue;
@@ -110,7 +84,6 @@ class Interpreter {
                     )) ?? {};
                 const result = DATA.result?.toString().escape() ?? '';
                 currentCode = currentCode.replace(unpacked.all, result);
-                splitedCode = currentCode.split(/\n/);
                 if (DATA.error === true) {
                     error = true;
                     break;
@@ -125,7 +98,7 @@ class Interpreter {
         };
     }
     unpack(func, code) {
-        const funcStart = code.indexOf(func);
+        const funcStart = code.toLowerCase().indexOf(func.toLowerCase());
         if (funcStart === -1) return { func, args: [], brackets: false, all: null };
         if (funcStart > 0 && code[funcStart - 1] === '$') {
             return { func, args: [], brackets: false, all: func };

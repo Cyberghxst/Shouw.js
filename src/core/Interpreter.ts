@@ -55,13 +55,15 @@ class Interpreter {
 			unescape: (str: string) => str.unescape(),
 			escape: (str: string) => str.escape()
 		};
-		this.Temporarily = {
-			arrays: {},
-			variables: {},
-			splits: [],
-			randoms: {},
-			timezone: 'UTC'
-		};
+		this.Temporarily =
+			(options.Temporarily as TemporarilyData) ??
+			({
+				arrays: {},
+				variables: {},
+				splits: [],
+				randoms: {},
+				timezone: 'UTC'
+			} as TemporarilyData);
 	}
 
 	public async initialize() {
@@ -72,41 +74,10 @@ class Interpreter {
 			let functions = this.extractFunctions(code);
 			if (functions.length === 0) return code;
 			let currentCode = code;
-			let splitedCode = currentCode.split(/\n/);
-
-			for (const func of functions) {
-				if (func.toLowerCase() === '$if') {
-					let depth = 0;
-					let position = 0;
-					const functionLine = splitedCode.findIndex((code: string) => {
-						const lines = code
-							?.toLowerCase()
-							.split(' ')
-							.map((x) => x.trim());
-						return lines.some((line: string) => line.startsWith(func));
-					});
-
-					while (depth >= 0 && position < splitedCode.length) {
-						if (splitedCode[position].match(/\$if\[/i)) depth++;
-						if (splitedCode[position].match(/\$endif/i)) {
-							depth--;
-							if (depth === 0) break;
-						}
-
-						position++;
-					}
-
-					if (depth !== 0) {
-						console.log('Invalid $if usage: Missing $endif');
-						error = true;
-						break;
-					}
-
-					const BLOCK = splitedCode.slice(functionLine, position + 1).join('\n');
-					const RESULT = await IF(BLOCK, this as InterpreterOptions);
-					currentCode = currentCode.replace(BLOCK, RESULT);
-					splitedCode = currentCode.split(/\n/);
-					functions = this.extractFunctions(currentCode);
+			for (let func of functions) {
+				if (func.match(/^\$if/i)) {
+					currentCode = await processFunction(await IF(currentCode, this as InterpreterOptions));
+					break;
 				}
 
 				const unpacked = this.unpack(func, currentCode);
@@ -145,7 +116,6 @@ class Interpreter {
 
 				const result = DATA.result?.toString().escape() ?? '';
 				currentCode = currentCode.replace(unpacked.all, result);
-				splitedCode = currentCode.split(/\n/);
 				if (DATA.error === true) {
 					error = true;
 					break;
@@ -171,7 +141,7 @@ class Interpreter {
 		brackets: any;
 		all: string | null;
 	} {
-		const funcStart = code.indexOf(func);
+		const funcStart = code.toLowerCase().indexOf(func.toLowerCase());
 		if (funcStart === -1) return { func, args: [], brackets: false, all: null };
 
 		if (funcStart > 0 && code[funcStart - 1] === '$') {

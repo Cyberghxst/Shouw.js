@@ -1,26 +1,26 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 const core_1 = require('../../core');
-class CheckCondition extends core_1.Functions {
+class Get extends core_1.Functions {
     constructor() {
         super({
-            name: '$checkCondition',
-            description: 'Check a condition wether true or false',
+            name: '$get',
+            description: 'Will retrieve temporary variables stored ny $let',
             brackets: true,
             params: [
                 {
-                    name: 'condition',
-                    description: 'The condition you want to check',
+                    name: 'varname',
+                    description: 'Temporary variable you want to retrieve',
                     required: true,
                     type: core_1.ParamType.String
                 }
             ]
         });
     }
-    code(ctx, [condition]) {
+    code(_ctx, [varname], data) {
         return {
-            result: ctx.helpers.condition.solve(condition)
+            result: data.variables[varname]
         };
     }
 }
-exports.default = CheckCondition;
+exports.default = Get;

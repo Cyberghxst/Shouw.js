@@ -23,6 +23,7 @@ export interface InterpreterOptions {
 	context?: Context;
 	args?: string[];
 	debug?: boolean;
+	Temporarily?: TemporarilyData;
 }
 
 export interface FunctionData extends Objects {
