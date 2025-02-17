@@ -76,7 +76,13 @@ class Interpreter {
             let currentCode = code;
             for (let func of functions) {
                 if (func.match(/^\$if$/i)) {
-                    currentCode = await processFunction(await IF(currentCode, this as InterpreterOptions));
+                    const RESULT = await IF(currentCode, this as InterpreterOptions);
+                    if (RESULT.error) {
+                        error = true;
+                        break;
+                    }
+
+                    currentCode = await processFunction(RESULT.code);
                     break;
                 }
 

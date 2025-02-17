@@ -32,7 +32,7 @@ export class CheckCondition {
     }
 
     private static solveEqual(msg: string) {
-        let pass = true;
+        let pass = false;
         const parts = msg.split('==').map(part => part.trim());
         if (parts[0].unescape() === parts[1].unescape()) pass = true;
         return pass;
@@ -41,7 +41,7 @@ export class CheckCondition {
     private static solveNotEqual(msg: string) {
         let pass = false;
         const parts = msg.split('!=');
-        if (parts[0].unescape() !== parts[1].unescape()) pass = false;
+        if (parts[0].unescape() !== parts[1].unescape()) pass = true;
         return pass;
     }
 

@@ -3,13 +3,12 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.IF = IF;
 const Interpreter_1 = require('./Interpreter');
 async function IF(code, ctx) {
-    if (!code.toLowerCase().includes('$if[')) return code;
+    if (!code.match(/\$endif/gi)) {
+        console.log('Invalid $if usage: Missing $endif');
+        return { error: true, code };
+    }
     for (let statement of code.split(/\$if\[/gi).slice(1)) {
-        const length = code.toLowerCase().split(/\$if\[/i).length - 1;
-        if (!code.match(/\$endif/gi)) {
-            console.log('Invalid $if usage: Missing $endif');
-            return code;
-        }
+        const length = code.split(/\$if\[/gi).length - 1;
         const everything = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
         statement = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
         let condition = statement.split(/\n/)[0].trim();
@@ -24,13 +23,13 @@ async function IF(code, ctx) {
                     ctx
                 ).initialize()
             ).result === 'true';
-        const elseIfAction = statement.match(/\$elseif/i);
+        const elseIfAction = statement.match(/\$elseif/gi);
         const elseIfs = {};
-        if (statement.match(/\$elseif/i)) {
+        if (elseIfAction) {
             for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
-                if (!data.toLowerCase().includes('$endelseif')) {
+                if (!data.match(/\$endelseif/gi)) {
                     console.log('Invalid $elseif usage: Missing $endelseif');
-                    return code;
+                    return { error: true, code };
                 }
                 const inside = data.split(/\$endelseIf/gi)[0];
                 let elseifCondition = inside.split(/\n/)[0].trim();
@@ -77,7 +76,7 @@ async function IF(code, ctx) {
         code = code.replace(/\$if\[/gi, '$if[').replace(/\$endif/gi, '$endif');
         code = code.replace(`$if[${everything}$endif`, pass ? ifCode : passes ? lastCode : elseCode);
     }
-    return code;
+    return { error: false, code };
 }
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\\n]/g, '\\$&');

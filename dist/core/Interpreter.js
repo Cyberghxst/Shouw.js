@@ -49,7 +49,12 @@ class Interpreter {
             let currentCode = code;
             for (let func of functions) {
                 if (func.match(/^\$if$/i)) {
-                    currentCode = await processFunction(await (0, IF_1.IF)(currentCode, this));
+                    const RESULT = await (0, IF_1.IF)(currentCode, this);
+                    if (RESULT.error) {
+                        error = true;
+                        break;
+                    }
+                    currentCode = await processFunction(RESULT.code);
                     break;
                 }
                 const unpacked = this.unpack(func, currentCode);

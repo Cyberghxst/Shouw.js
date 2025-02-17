@@ -2,14 +2,13 @@ import type { InterpreterOptions } from '../typings';
 import { Interpreter } from './Interpreter';
 
 export async function IF(code: string, ctx: InterpreterOptions) {
-    if (!code.toLowerCase().includes('$if[')) return code;
-    for (let statement of code.split(/\$if\[/gi).slice(1)) {
-        const length = code.toLowerCase().split(/\$if\[/i).length - 1;
-        if (!code.match(/\$endif/gi)) {
-            console.log('Invalid $if usage: Missing $endif');
-            return code;
-        }
+    if (!code.match(/\$endif/gi)) {
+        console.log('Invalid $if usage: Missing $endif');
+        return { error: true, code };
+    }
 
+    for (let statement of code.split(/\$if\[/gi).slice(1)) {
+        const length = code.split(/\$if\[/gi).length - 1;
         const everything: string = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
         statement = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
 
@@ -27,14 +26,14 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                 ).initialize()
             ).result === 'true';
 
-        const elseIfAction: RegExpMatchArray | null = statement.match(/\$elseif/i);
+        const elseIfAction: RegExpMatchArray | null = statement.match(/\$elseif/gi);
         const elseIfs: object = {};
 
-        if (statement.match(/\$elseif/i)) {
+        if (elseIfAction) {
             for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
-                if (!data.toLowerCase().includes('$endelseif')) {
+                if (!data.match(/\$endelseif/gi)) {
                     console.log('Invalid $elseif usage: Missing $endelseif');
-                    return code;
+                    return { error: true, code };
                 }
 
                 const inside: string = data.split(/\$endelseIf/gi)[0];
@@ -60,7 +59,6 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                   .split(/\$endif/gi)[0];
 
         const elseCode: string = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
-
         let passes: boolean = false;
         let lastCode: string = '';
 
@@ -90,7 +88,7 @@ export async function IF(code: string, ctx: InterpreterOptions) {
         code = code.replace(`$if[${everything}$endif`, pass ? ifCode : passes ? lastCode : elseCode);
     }
 
-    return code;
+    return { error: false, code };
 }
 
 function escapeRegExp(string: string) {
