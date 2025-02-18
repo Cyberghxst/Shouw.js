@@ -17,7 +17,8 @@ async function IF(code, ctx) {
         const condition = extractCondition(statement);
         const conditionResult = (await new Interpreter_1.Interpreter({
             code: `$checkCondition[${condition}]`,
-            name: 'if'
+            name: 'if',
+            type: 'parsing'
         }, ctx).initialize()).result === 'true';
         const elseIfBlocks = {};
         const elseIfMatches = statement.match(/\$elseif/gi);
@@ -53,7 +54,8 @@ async function IF(code, ctx) {
                 if (!isConditionPassed) {
                     const elseifConditionResult = (await new Interpreter_1.Interpreter({
                         code: `$checkCondition[${elseifCondition}]`,
-                        name: 'if'
+                        name: 'if',
+                        type: 'parsing'
                     }, ctx).initialize()).result === 'true';
                     if (elseifConditionResult) {
                         isConditionPassed = true;

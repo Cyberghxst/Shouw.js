@@ -23,7 +23,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                 await new Interpreter(
                     {
                         code: `$checkCondition[${condition}]`,
-                        name: 'if'
+                        name: 'if',
+                        type: 'parsing'
                     },
                     ctx as InterpreterOptions
                 ).initialize()
@@ -76,7 +77,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                             await new Interpreter(
                                 {
                                     code: `$checkCondition[${elseifCondition}]`,
-                                    name: 'if'
+                                    name: 'if',
+                                    type: 'parsing'
                                 },
                                 ctx as InterpreterOptions
                             ).initialize()

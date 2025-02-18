@@ -1,27 +1,15 @@
-const { ShouwClient, Interpreter } = require('../dist');
-const client = new ShouwClient({ intents: [] });
+const { ShouwClient } = require('../dist');
 
-const code = `$let[vars;uwu]
-$get[vars]
-$if[$get[vars]==uwu]
-first block
-$endif
-`;
+const client = new ShouwClient({
+    token: process.env.TOKEN,
+    prefix: 'nou',
+    intents: ['Guilds', 'GuildMessages', 'MessageContent'],
+    events: ['messageCreate']
+});
 
-console.log('CODE:\n\n' + code + '\n\n');
-const now = Date.now();
-
-new Interpreter(
-    {
-        name: 'test',
-        code: code
-    },
-    {
-        client
-    }
-)
-    .initialize()
-    .then(x => {
-        console.log('\n\nRESULT:\n\n' + x.result);
-        console.log(`\n${Date.now() - now}ms\n\n\n`);
-    });
+client.command({
+    name: 'meow',
+    type: 'messageCreate',
+    code: `halo
+$description[meow]`
+});

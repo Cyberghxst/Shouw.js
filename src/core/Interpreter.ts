@@ -131,6 +131,24 @@ class Interpreter {
                     error = true;
                     break;
                 }
+                if (DATA.embeds) {
+                    this.embeds = DATA.embeds;
+                }
+                if (DATA.attachments) {
+                    this.attachments = DATA.attachments;
+                }
+                if (DATA.components) {
+                    this.components = DATA.components;
+                }
+                if (DATA.stickers) {
+                    this.stickers = DATA.stickers;
+                }
+                if (DATA.flags) {
+                    this.flags = DATA.flags;
+                }
+                if (DATA.message) {
+                    this.message = DATA.message;
+                }
             }
 
             return currentCode.unescape().trim();
@@ -138,7 +156,24 @@ class Interpreter {
 
         result = await processFunction(result);
         this.code = result;
+        if (
+            (this.code && this.code !== '') ||
+            this.components.length > 0 ||
+            this.embeds.length > 0 ||
+            this.attachments.length > 0
+        ) {
+            this.message = (await this.context?.send({
+                content: this.code !== '' ? this.code : null,
+                embeds: this.embeds,
+                components: this.components,
+                files: this.attachments,
+                flags: this.flags
+            })) as Discord.Message;
+        }
+
         return {
+            error: error,
+            id: this.message?.id,
             result: error ? null : this.code.unescape().trim()
         };
     }

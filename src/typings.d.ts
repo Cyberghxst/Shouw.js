@@ -44,7 +44,8 @@ export interface CommandData extends Objects {
     name?: string;
     aliases?: string | string[];
     code: string;
-    type?: string;
+    type: string;
+    prototype?: string;
 }
 
 export interface FunctionResultData extends Omit<InterpreterOptions, 'client'> {
@@ -73,7 +74,7 @@ export interface HelpersData {
 }
 
 export interface ShouwClientOptions extends DiscordType.ClientOptions {
-    [key: string]: unknown;
-
-    // not finished yet
+    token: string;
+    events: Array<keyof DiscordType.ClientEvents>;
+    prefix: string[];
 }
