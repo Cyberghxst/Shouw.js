@@ -51,7 +51,7 @@ class Interpreter {
                 return code;
             let currentCode = code;
             for (const func of functions) {
-                if (func.match(/^\$if$/i)) {
+                if (func.match(/(\$if|\$endif)$/i)) {
                     const RESULT = await (0, IF_1.IF)(currentCode, this);
                     if (RESULT.error) {
                         error = true;
@@ -180,7 +180,7 @@ class Interpreter {
             const splited = line.split('$').filter((x) => x.trim() !== '');
             const lineFunctions = [];
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K(), '$if'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
+                const matchingFunctions = [...this.functions.K(), '$if', '$endif'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
                 if (matchingFunctions.length === 1) {
                     lineFunctions.push(matchingFunctions[0]);
                 }
@@ -189,7 +189,7 @@ class Interpreter {
                 }
             }
             if (lineFunctions.length > 0)
-                functions.push(...lineFunctions);
+                functions.push(...lineFunctions.reverse());
         }
         return functions;
     }

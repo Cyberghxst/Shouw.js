@@ -8,15 +8,17 @@ export async function IF(code: string, ctx: InterpreterOptions) {
     }
 
     let result = code;
-    for (let statement of code.split(/\$if\[/gi).slice(1)) {
-        const length = code.split(/\$if\[/gi).length - 1;
-        const everything: string = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
-        statement = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
+    const ifStatements = code.split(/\$if\[/gi).slice(1);
 
-        let condition: string = statement.split(/\n/)[0].trim();
-        condition = condition.slice(0, condition.length - 1);
+    for (let statement of ifStatements) {
+        const conditionBlock =
+            code
+                .split(/\$if\[/gi)
+                .pop()
+                ?.split(/\$endif/gi)[0] || '';
+        const condition = extractCondition(statement);
 
-        const pass: boolean =
+        const conditionResult =
             (
                 await new Interpreter(
                     {
@@ -27,71 +29,93 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                 ).initialize()
             ).result === 'true';
 
-        const elseIfAction: RegExpMatchArray | null = statement.match(/\$elseif/gi);
-        const elseIfs: object = {};
+        const elseIfBlocks: Record<string, string> = {};
+        const elseIfMatches = statement.match(/\$elseif/gi);
 
-        if (elseIfAction) {
-            for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
-                if (!data.match(/\$endelseif/gi)) {
+        if (elseIfMatches) {
+            for (const elseIf of statement.split(/\$elseif\[/gi).slice(1)) {
+                if (!elseIf.match(/\$endelseif/gi)) {
                     console.log('Invalid $elseif usage: Missing $endelseif');
                     return { error: true, code: result };
                 }
 
-                const inside: string = data.split(/\$endelseIf/gi)[0];
-                let elseifCondition: string = inside.split(/\n/)[0].trim();
-                elseifCondition = elseifCondition.slice(0, elseifCondition.length - 1);
-                elseIfs[elseifCondition] = inside.split(/\n/).slice(1).join('\n');
+                const elseifContent = elseIf.split(/\$endelseif/gi)[0];
+                const elseifCondition = extractCondition(elseifContent);
+                elseIfBlocks[elseifCondition] = elseifContent.slice(elseifCondition.length + 1);
 
-                statement = statement.replace(new RegExp(`\\$elseif\\[${escapeRegExp(inside)}\\$endelseif`, 'mi'), '');
+                statement = statement.replace(
+                    new RegExp(`\\$elseif\\[${escapeRegExp(elseifContent)}\\$endelseif`, 'mi'),
+                    ''
+                );
             }
         }
 
-        const elseAction: RegExpMatchArray | null = statement.match(/\$else/i);
-        const ifCode: string = elseAction
+        const elseBlockMatch = statement.match(/\$else/i);
+        const ifCodeBlock = elseBlockMatch
             ? statement
-                  .split('\n')
+                  .split(`${condition}]`)
                   .slice(1)
                   .join('\n')
                   .split(/\$else/gi)[0]
             : statement
-                  .split('\n')
+                  .split(`${condition}]`)
                   .slice(1)
                   .join('\n')
                   .split(/\$endif/gi)[0];
 
-        const elseCode: string = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
-        let passes = false;
-        let lastCode = '';
+        const elseCodeBlock = elseBlockMatch ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
 
-        if (elseIfAction) {
-            for (const data of Object.entries(elseIfs)) {
-                if (!passes) {
-                    const response: boolean =
+        let finalCode = '';
+        let isConditionPassed = false;
+
+        if (elseIfBlocks) {
+            for (const [elseifCondition, elseifCode] of Object.entries(elseIfBlocks)) {
+                if (!isConditionPassed) {
+                    const elseifConditionResult =
                         (
                             await new Interpreter(
                                 {
-                                    code: `$checkCondition[${data[0]}]`,
+                                    code: `$checkCondition[${elseifCondition}]`,
                                     name: 'if'
                                 },
                                 ctx as InterpreterOptions
                             ).initialize()
                         ).result === 'true';
 
-                    if (response) {
-                        passes = true;
-                        lastCode = data[1];
+                    if (elseifConditionResult) {
+                        isConditionPassed = true;
+                        finalCode = elseifCode;
                     }
                 }
             }
         }
 
         result = code.replace(/\$if\[/gi, '$if[').replace(/\$endif/gi, '$endif');
-        result = code.replace(`$if[${everything}$endif`, pass ? ifCode : passes ? lastCode : elseCode);
+        result = code.replace(
+            `$if[${conditionBlock}$endif`,
+            conditionResult ? ifCodeBlock : isConditionPassed ? finalCode : elseCodeBlock
+        );
     }
 
     return { error: false, code: result };
 }
 
-function escapeRegExp(string: string) {
-    return string.replace(/[.*+?^${}()|[\]\\\n]/g, '\\$&');
+function extractCondition(code: string): string {
+    let nestingLevel = 1;
+    let position = 0;
+    while (nestingLevel > 0 && position < code.length) {
+        if (code[position] === '[') nestingLevel++;
+        if (code[position] === ']') {
+            nestingLevel--;
+            if (nestingLevel === 0) break;
+        }
+
+        position++;
+    }
+
+    return code.slice(0, position);
+}
+
+function escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\\n]/g, '\\$&');
 }

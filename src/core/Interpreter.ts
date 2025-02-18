@@ -75,7 +75,7 @@ class Interpreter {
             if (functions.length === 0) return code;
             let currentCode = code;
             for (const func of functions) {
-                if (func.match(/^\$if$/i)) {
+                if (func.match(/(\$if|\$endif)$/i)) {
                     const RESULT = await IF(currentCode, this as InterpreterOptions);
                     if (RESULT.error) {
                         error = true;
@@ -233,7 +233,7 @@ class Interpreter {
             const lineFunctions: string[] = [];
 
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K(), '$if'].filter(
+                const matchingFunctions = [...this.functions.K(), '$if', '$endif'].filter(
                     func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length)
                 );
 
@@ -244,7 +244,7 @@ class Interpreter {
                 }
             }
 
-            if (lineFunctions.length > 0) functions.push(...lineFunctions);
+            if (lineFunctions.length > 0) functions.push(...lineFunctions.reverse());
         }
 
         return functions;
