@@ -1,51 +1,52 @@
+// biome-ignore lint:
 export class CheckCondition {
-    private static hasAnd(msg: string) {
+    public static hasAnd(msg: string) {
         return msg.includes('&&');
     }
 
-    private static hasOr(msg: string) {
+    public static hasOr(msg: string) {
         return msg.includes('||');
     }
 
-    private static hasEqual(msg: string) {
+    public static hasEqual(msg: string) {
         return msg.includes('==');
     }
 
-    private static hasNotEqual(msg: string) {
+    public static hasNotEqual(msg: string) {
         return msg.includes('!=');
     }
 
-    private static hasGreater(msg: string) {
+    public static hasGreater(msg: string) {
         return msg.includes('>');
     }
 
-    private static hasLesser(msg: string) {
+    public static hasLesser(msg: string) {
         return msg.includes('<');
     }
 
-    private static hasGE(msg: string) {
+    public static hasGE(msg: string) {
         return msg.includes('>=');
     }
 
-    private static hasLE(msg: string) {
+    public static hasLE(msg: string) {
         return msg.includes('<=');
     }
 
-    private static solveEqual(msg: string) {
+    public static solveEqual(msg: string) {
         let pass = false;
         const parts = msg.split('==').map(part => part.trim());
         if (parts[0].unescape() === parts[1].unescape()) pass = true;
         return pass;
     }
 
-    private static solveNotEqual(msg: string) {
+    public static solveNotEqual(msg: string) {
         let pass = false;
         const parts = msg.split('!=');
         if (parts[0].unescape() !== parts[1].unescape()) pass = true;
         return pass;
     }
 
-    private static solveGreater(msg: string) {
+    public static solveGreater(msg: string) {
         let pass = true;
         let parts: string[] | number[] = msg.split('>');
         parts = parts.every((x: string) => Number.isNaN(Number(x))) ? parts : parts.map((x: string) => Number(x));
@@ -53,7 +54,7 @@ export class CheckCondition {
         return pass;
     }
 
-    private static solveLesser(msg: string) {
+    public static solveLesser(msg: string) {
         let pass = true;
         let parts: string[] | number[] = msg.split('<');
         parts = parts.every((x: string) => Number.isNaN(Number(x))) ? parts : parts.map((x: string) => Number(x));
@@ -61,7 +62,7 @@ export class CheckCondition {
         return pass;
     }
 
-    private static solveLE(msg: string) {
+    public static solveLE(msg: string) {
         let pass = true;
         let parts: string[] | number[] = msg.split('<=');
         parts = parts.every((x: string) => Number.isNaN(Number(x))) ? parts : parts.map((x: string) => Number(x));
@@ -70,7 +71,7 @@ export class CheckCondition {
         return pass;
     }
 
-    private static solveGE(msg: string) {
+    public static solveGE(msg: string) {
         let pass = true;
         let parts: string[] | number[] = msg.split('>=');
         parts = parts.every((x: string) => Number.isNaN(Number(x))) ? parts : parts.map((x: string) => Number(x));
@@ -79,7 +80,7 @@ export class CheckCondition {
         return pass;
     }
 
-    private static solveAnd(msg: string) {
+    public static solveAnd(msg: string) {
         const parts = msg.split('&&');
         const final: string[] = [];
         for (let part of parts) {
@@ -98,7 +99,7 @@ export class CheckCondition {
         return final.join('&&');
     }
 
-    private static solveOr(msg: string) {
+    public static solveOr(msg: string) {
         const parts = msg.split('||');
         const final: string[] = [];
         for (let part of parts) {
@@ -135,6 +136,7 @@ export class CheckCondition {
             result = result + ')'.repeat(result.split('(').length - result.split(')').length);
 
         try {
+            // biome-ignore lint:
             return eval(result);
         } catch {
             return false;

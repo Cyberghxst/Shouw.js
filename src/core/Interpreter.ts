@@ -1,7 +1,7 @@
 import type { Channel } from 'discord.js';
-import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions } from '../typings';
+import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions, FunctionData } from '../typings';
 import * as Discord from 'discord.js';
-import { Context, FunctionsManager, ShouwClient as Client } from '../classes';
+import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
 import { CheckCondition } from './Conditions';
 import { IF } from './IF';
 
@@ -71,10 +71,10 @@ class Interpreter {
         let error = false;
 
         const processFunction = async (code: string): Promise<string> => {
-            let functions = this.extractFunctions(code);
+            const functions = this.extractFunctions(code);
             if (functions.length === 0) return code;
             let currentCode = code;
-            for (let func of functions) {
+            for (const func of functions) {
                 if (func.match(/^\$if$/i)) {
                     const RESULT = await IF(currentCode, this as InterpreterOptions);
                     if (RESULT.error) {
@@ -88,21 +88,23 @@ class Interpreter {
 
                 const unpacked = this.unpack(func, currentCode);
                 if (!unpacked.all) continue;
-                const functionData = this.functions.get(func);
-                if (!functionData) continue;
+                const functionData: FunctionData | undefined = this.functions.get(func);
+                if (!functionData || !functionData.code || typeof functionData.code !== 'function') continue;
                 if (functionData.brackets && !unpacked.brackets) {
                     console.log(`Invalid ${func} usage: Missing brackets`);
                     error = true;
                     break;
                 }
 
-                const processedArgs: Array<any> = [];
+                const processedArgs: Array<unknown> = [];
                 if (unpacked.args.length > 0) {
                     for (const arg of unpacked.args) {
-                        if (!arg || typeof arg !== 'string') {
+                        if (!arg) {
                             processedArgs.push(void 0);
                             continue;
-                        } else if (typeof arg === 'string' && !arg.match(/\$/g)) {
+                        }
+
+                        if ((typeof arg === 'string' && !arg.match(/\$/g)) || typeof arg !== 'string') {
                             processedArgs.push(arg);
                             continue;
                         }
@@ -146,8 +148,8 @@ class Interpreter {
         code: string
     ): {
         func: string;
-        args: Array<any>;
-        brackets: any;
+        args: Array<unknown>;
+        brackets: boolean;
         all: string | null;
     } {
         const funcStart = code.toLowerCase().indexOf(func.toLowerCase());
@@ -222,7 +224,7 @@ class Interpreter {
         });
     }
 
-    private extractFunctions(code = this.code) {
+    private extractFunctions(code = this.code): Array<string> {
         const lines = code.split(/\n/)?.filter(line => line.trim() !== '' || line);
         const functions: string[] = [];
 

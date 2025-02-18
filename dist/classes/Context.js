@@ -1,5 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.Context = void 0;
-class Context {}
+class Context {
+}
 exports.Context = Context;

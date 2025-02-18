@@ -7,6 +7,7 @@ export async function IF(code: string, ctx: InterpreterOptions) {
         return { error: true, code };
     }
 
+    let result = code;
     for (let statement of code.split(/\$if\[/gi).slice(1)) {
         const length = code.split(/\$if\[/gi).length - 1;
         const everything: string = code.split(/\$if\[/gi)[length].split(/\$endif/gi)[0];
@@ -33,7 +34,7 @@ export async function IF(code: string, ctx: InterpreterOptions) {
             for (const data of statement.split(/\$elseif\[/gi).slice(1)) {
                 if (!data.match(/\$endelseif/gi)) {
                     console.log('Invalid $elseif usage: Missing $endelseif');
-                    return { error: true, code };
+                    return { error: true, code: result };
                 }
 
                 const inside: string = data.split(/\$endelseIf/gi)[0];
@@ -59,8 +60,8 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                   .split(/\$endif/gi)[0];
 
         const elseCode: string = elseAction ? statement.split(/\$else/gi)[1].split(/\$endif/gi)[0] : '';
-        let passes: boolean = false;
-        let lastCode: string = '';
+        let passes = false;
+        let lastCode = '';
 
         if (elseIfAction) {
             for (const data of Object.entries(elseIfs)) {
@@ -84,11 +85,11 @@ export async function IF(code: string, ctx: InterpreterOptions) {
             }
         }
 
-        code = code.replace(/\$if\[/gi, '$if[').replace(/\$endif/gi, '$endif');
-        code = code.replace(`$if[${everything}$endif`, pass ? ifCode : passes ? lastCode : elseCode);
+        result = code.replace(/\$if\[/gi, '$if[').replace(/\$endif/gi, '$endif');
+        result = code.replace(`$if[${everything}$endif`, pass ? ifCode : passes ? lastCode : elseCode);
     }
 
-    return { error: false, code };
+    return { error: false, code: result };
 }
 
 function escapeRegExp(string: string) {

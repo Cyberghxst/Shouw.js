@@ -1,6 +1,7 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.CheckCondition = void 0;
+// biome-ignore lint:
 class CheckCondition {
     static hasAnd(msg) {
         return msg.includes('&&');
@@ -29,41 +30,47 @@ class CheckCondition {
     static solveEqual(msg) {
         let pass = false;
         const parts = msg.split('==').map(part => part.trim());
-        if (parts[0].unescape() === parts[1].unescape()) pass = true;
+        if (parts[0].unescape() === parts[1].unescape())
+            pass = true;
         return pass;
     }
     static solveNotEqual(msg) {
         let pass = false;
         const parts = msg.split('!=');
-        if (parts[0].unescape() !== parts[1].unescape()) pass = true;
+        if (parts[0].unescape() !== parts[1].unescape())
+            pass = true;
         return pass;
     }
     static solveGreater(msg) {
         let pass = true;
         let parts = msg.split('>');
-        parts = parts.every(x => Number.isNaN(Number(x))) ? parts : parts.map(x => Number(x));
-        if (parts[0] <= parts[1]) pass = false;
+        parts = parts.every((x) => Number.isNaN(Number(x))) ? parts : parts.map((x) => Number(x));
+        if (parts[0] <= parts[1])
+            pass = false;
         return pass;
     }
     static solveLesser(msg) {
         let pass = true;
         let parts = msg.split('<');
-        parts = parts.every(x => Number.isNaN(Number(x))) ? parts : parts.map(x => Number(x));
-        if (parts[0] >= parts[1]) pass = false;
+        parts = parts.every((x) => Number.isNaN(Number(x))) ? parts : parts.map((x) => Number(x));
+        if (parts[0] >= parts[1])
+            pass = false;
         return pass;
     }
     static solveLE(msg) {
         let pass = true;
         let parts = msg.split('<=');
-        parts = parts.every(x => Number.isNaN(Number(x))) ? parts : parts.map(x => Number(x));
-        if (parts[0] > parts[1]) pass = false;
+        parts = parts.every((x) => Number.isNaN(Number(x))) ? parts : parts.map((x) => Number(x));
+        if (parts[0] > parts[1])
+            pass = false;
         return pass;
     }
     static solveGE(msg) {
         let pass = true;
         let parts = msg.split('>=');
-        parts = parts.every(x => Number.isNaN(Number(x))) ? parts : parts.map(x => Number(x));
-        if (parts[0] < parts[1]) pass = false;
+        parts = parts.every((x) => Number.isNaN(Number(x))) ? parts : parts.map((x) => Number(x));
+        if (parts[0] < parts[1])
+            pass = false;
         return pass;
     }
     static solveAnd(msg) {
@@ -72,14 +79,22 @@ class CheckCondition {
         for (let part of parts) {
             const has = part.includes(')') ? ')' : '';
             part = part.split(')')[0];
-            if (CheckCondition.hasOr(part)) final.push(CheckCondition.solveOr(part) + has);
-            else if (CheckCondition.hasEqual(part)) final.push(CheckCondition.solveEqual(part) + has);
-            else if (CheckCondition.hasNotEqual(part)) final.push(CheckCondition.solveNotEqual(part) + has);
-            else if (CheckCondition.hasGE(part)) final.push(CheckCondition.solveGE(part) + has);
-            else if (CheckCondition.hasLE(part)) final.push(CheckCondition.solveLE(part) + has);
-            else if (CheckCondition.hasGreater(part)) final.push(CheckCondition.solveGreater(part) + has);
-            else if (CheckCondition.hasLesser(part)) final.push(CheckCondition.solveLesser(part) + has);
-            else if (part.trim() === '') final.push(part);
+            if (CheckCondition.hasOr(part))
+                final.push(CheckCondition.solveOr(part) + has);
+            else if (CheckCondition.hasEqual(part))
+                final.push(CheckCondition.solveEqual(part) + has);
+            else if (CheckCondition.hasNotEqual(part))
+                final.push(CheckCondition.solveNotEqual(part) + has);
+            else if (CheckCondition.hasGE(part))
+                final.push(CheckCondition.solveGE(part) + has);
+            else if (CheckCondition.hasLE(part))
+                final.push(CheckCondition.solveLE(part) + has);
+            else if (CheckCondition.hasGreater(part))
+                final.push(CheckCondition.solveGreater(part) + has);
+            else if (CheckCondition.hasLesser(part))
+                final.push(CheckCondition.solveLesser(part) + has);
+            else if (part.trim() === '')
+                final.push(part);
         }
         return final.join('&&');
     }
@@ -89,18 +104,26 @@ class CheckCondition {
         for (let part of parts) {
             const has = part.includes(')') ? ')' : '';
             part = part.split(')')[0];
-            if (CheckCondition.hasEqual(part)) final.push(CheckCondition.solveEqual(part) + has);
-            else if (CheckCondition.hasNotEqual(part)) final.push(CheckCondition.solveNotEqual(part) + has);
-            else if (CheckCondition.hasGE(part)) final.push(CheckCondition.solveGE(part) + has);
-            else if (CheckCondition.hasLE(part)) final.push(CheckCondition.solveLE(part) + has);
-            else if (CheckCondition.hasGreater(part)) final.push(CheckCondition.solveGreater(part) + has);
-            else if (CheckCondition.hasLesser(part)) final.push(CheckCondition.solveLesser(part) + has);
-            else if (part.trim() === '') final.push(part);
+            if (CheckCondition.hasEqual(part))
+                final.push(CheckCondition.solveEqual(part) + has);
+            else if (CheckCondition.hasNotEqual(part))
+                final.push(CheckCondition.solveNotEqual(part) + has);
+            else if (CheckCondition.hasGE(part))
+                final.push(CheckCondition.solveGE(part) + has);
+            else if (CheckCondition.hasLE(part))
+                final.push(CheckCondition.solveLE(part) + has);
+            else if (CheckCondition.hasGreater(part))
+                final.push(CheckCondition.solveGreater(part) + has);
+            else if (CheckCondition.hasLesser(part))
+                final.push(CheckCondition.solveLesser(part) + has);
+            else if (part.trim() === '')
+                final.push(part);
         }
         return final.join('||');
     }
     static solve(msg) {
-        if (!msg) return false;
+        if (!msg)
+            return false;
         const parts = msg.split('(');
         const final = [];
         for (const part of parts) {
@@ -115,8 +138,10 @@ class CheckCondition {
         if (result.split('(').length !== result.split(')').length)
             result = result + ')'.repeat(result.split('(').length - result.split(')').length);
         try {
+            // biome-ignore lint:
             return eval(result);
-        } catch {
+        }
+        catch {
             return false;
         }
     }

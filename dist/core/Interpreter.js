@@ -1,12 +1,12 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
-const Discord = require('discord.js');
-const Conditions_1 = require('./Conditions');
-const IF_1 = require('./IF');
+const Discord = require("discord.js");
+const Conditions_1 = require("./Conditions");
+const IF_1 = require("./IF");
 class Interpreter {
     constructor(cmd, options) {
-        this.noop = () => {};
+        this.noop = () => { };
         this.discord = Discord;
         this.client = options.client;
         this.functions = this.client.functions;
@@ -29,25 +29,28 @@ class Interpreter {
         this.helpers = {
             condition: Conditions_1.CheckCondition,
             interpreter: Interpreter,
-            unescape: str => str.unescape(),
-            escape: str => str.escape()
+            unescape: (str) => str.unescape(),
+            escape: (str) => str.escape()
         };
-        this.Temporarily = options.Temporarily ?? {
-            arrays: {},
-            variables: {},
-            splits: [],
-            randoms: {},
-            timezone: 'UTC'
-        };
+        this.Temporarily =
+            options.Temporarily ??
+                {
+                    arrays: {},
+                    variables: {},
+                    splits: [],
+                    randoms: {},
+                    timezone: 'UTC'
+                };
     }
     async initialize() {
         let result = this.code;
         let error = false;
-        const processFunction = async code => {
-            let functions = this.extractFunctions(code);
-            if (functions.length === 0) return code;
+        const processFunction = async (code) => {
+            const functions = this.extractFunctions(code);
+            if (functions.length === 0)
+                return code;
             let currentCode = code;
-            for (let func of functions) {
+            for (const func of functions) {
                 if (func.match(/^\$if$/i)) {
                     const RESULT = await (0, IF_1.IF)(currentCode, this);
                     if (RESULT.error) {
@@ -58,9 +61,11 @@ class Interpreter {
                     break;
                 }
                 const unpacked = this.unpack(func, currentCode);
-                if (!unpacked.all) continue;
+                if (!unpacked.all)
+                    continue;
                 const functionData = this.functions.get(func);
-                if (!functionData) continue;
+                if (!functionData || !functionData.code || typeof functionData.code !== 'function')
+                    continue;
                 if (functionData.brackets && !unpacked.brackets) {
                     console.log(`Invalid ${func} usage: Missing brackets`);
                     error = true;
@@ -69,10 +74,11 @@ class Interpreter {
                 const processedArgs = [];
                 if (unpacked.args.length > 0) {
                     for (const arg of unpacked.args) {
-                        if (!arg || typeof arg !== 'string') {
+                        if (!arg) {
                             processedArgs.push(void 0);
                             continue;
-                        } else if (typeof arg === 'string' && !arg.match(/\$/g)) {
+                        }
+                        if ((typeof arg === 'string' && !arg.match(/\$/g)) || typeof arg !== 'string') {
                             processedArgs.push(arg);
                             continue;
                         }
@@ -80,16 +86,11 @@ class Interpreter {
                         processedArgs.push(processed);
                     }
                 }
-                const DATA =
-                    (await functionData.code(
-                        {
-                            ...this,
-                            interpreter: Interpreter,
-                            data: this.Temporarily
-                        },
-                        processedArgs,
-                        this.Temporarily
-                    )) ?? {};
+                const DATA = (await functionData.code({
+                    ...this,
+                    interpreter: Interpreter,
+                    data: this.Temporarily
+                }, processedArgs, this.Temporarily)) ?? {};
                 const result = DATA.result?.toString().escape() ?? '';
                 currentCode = currentCode.replace(unpacked.all, result);
                 if (DATA.error === true) {
@@ -107,12 +108,14 @@ class Interpreter {
     }
     unpack(func, code) {
         const funcStart = code.toLowerCase().indexOf(func.toLowerCase());
-        if (funcStart === -1) return { func, args: [], brackets: false, all: null };
+        if (funcStart === -1)
+            return { func, args: [], brackets: false, all: null };
         if (funcStart > 0 && code[funcStart - 1] === '$') {
             return { func, args: [], brackets: false, all: func };
         }
         const openBracketIndex = code.indexOf('[', funcStart);
-        if (openBracketIndex === -1) return { func, args: [], brackets: false, all: func };
+        if (openBracketIndex === -1)
+            return { func, args: [], brackets: false, all: func };
         const textBetween = code.slice(funcStart + func.length, openBracketIndex).trim();
         if (textBetween.includes('$')) {
             return { func, args: [], brackets: false, all: func };
@@ -123,9 +126,11 @@ class Interpreter {
             const char = code[closeBracketIndex];
             if (char === '[') {
                 bracketStack++;
-            } else if (char === ']') {
+            }
+            else if (char === ']') {
                 bracketStack--;
-                if (bracketStack === 0) break;
+                if (bracketStack === 0)
+                    break;
             }
             closeBracketIndex++;
         }
@@ -146,20 +151,25 @@ class Interpreter {
             if (char === '[') {
                 depth++;
                 currentArg += char;
-            } else if (char === ']') {
+            }
+            else if (char === ']') {
                 depth--;
                 currentArg += char;
-            } else if (char === ';' && depth === 0) {
+            }
+            else if (char === ';' && depth === 0) {
                 args.push(currentArg.trim());
                 currentArg = '';
-            } else {
+            }
+            else {
                 currentArg += char;
             }
         }
-        if (currentArg.trim()) args.push(currentArg.trim());
+        if (currentArg.trim())
+            args.push(currentArg.trim());
         // @ts-ignore
-        return args.map(arg => {
-            if (arg !== '') return arg.unescape();
+        return args.map((arg) => {
+            if (arg !== '')
+                return arg.unescape();
             return void 0;
         });
     }
@@ -167,19 +177,19 @@ class Interpreter {
         const lines = code.split(/\n/)?.filter(line => line.trim() !== '' || line);
         const functions = [];
         for (const line of lines) {
-            const splited = line.split('$').filter(x => x.trim() !== '');
+            const splited = line.split('$').filter((x) => x.trim() !== '');
             const lineFunctions = [];
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K(), '$if'].filter(
-                    func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length)
-                );
+                const matchingFunctions = [...this.functions.K(), '$if'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
                 if (matchingFunctions.length === 1) {
                     lineFunctions.push(matchingFunctions[0]);
-                } else if (matchingFunctions.length > 1) {
+                }
+                else if (matchingFunctions.length > 1) {
                     lineFunctions.push(matchingFunctions.sort((a, b) => b.length - a.length)[0]);
                 }
             }
-            if (lineFunctions.length > 0) functions.push(...lineFunctions);
+            if (lineFunctions.length > 0)
+                functions.push(...lineFunctions);
         }
         return functions;
     }

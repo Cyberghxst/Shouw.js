@@ -1,8 +1,8 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionsManager = void 0;
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require("node:fs");
+const path = require("node:path");
 class FunctionsManager extends Map {
     constructor(client) {
         super();
@@ -15,12 +15,15 @@ class FunctionsManager extends Map {
             const stat = fs.lstatSync(filePath);
             if (stat.isDirectory()) {
                 this.load(filePath, debug);
-            } else {
-                if (!file.endsWith('.js')) continue;
+            }
+            else {
+                if (!file.endsWith('.js'))
+                    continue;
                 const RawFunction = require(filePath).default;
                 const func = new RawFunction();
                 this.create(func);
-                if (debug) console.log(`Function loaded: ${func.name}`);
+                if (debug)
+                    console.log(`Function loaded: ${func.name}`);
             }
         }
     }

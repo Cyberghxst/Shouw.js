@@ -1,9 +1,9 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShouwClient = void 0;
-const path = require('node:path');
-const BaseClient_1 = require('./BaseClient');
-const Functions_1 = require('./Functions');
+const path = require("node:path");
+const BaseClient_1 = require("./BaseClient");
+const Functions_1 = require("./Functions");
 class ShouwClient extends BaseClient_1.BaseClient {
     constructor(options) {
         super(options);

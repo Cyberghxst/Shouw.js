@@ -60,7 +60,12 @@ export class Functions {
     public readonly brackets?: boolean;
     public readonly description?: string;
     public readonly type?: string;
-    public readonly params?: Array<any>;
+    public readonly params?: {
+        name?: string;
+        description?: string;
+        required?: boolean;
+        type?: ParamType;
+    }[];
 
     constructor(data: FunctionData) {
         if (!data) return;
@@ -71,7 +76,7 @@ export class Functions {
         this.params = data.params ?? [];
     }
 
-    public code(_discord: Interpreter, _params: Array<any>, _data: TemporarilyData): FunctionResultData {
-        return { result: '' };
+    public code(_ctx?: Interpreter, _params?: Array<unknown>, _data?: TemporarilyData): FunctionResultData {
+        return { result: void 0 };
     }
 }

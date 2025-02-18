@@ -1,7 +1,7 @@
 import type * as Discord from 'discord.js';
 import type * as DiscordType from 'discord.js';
 import type { Context, ShouwClient } from './classes';
-import type { CheckCondition, Interpreter } from './core';
+import type { CheckCondition, Interpreter, ParamType, Functions } from './core';
 
 declare global {
     interface String {
@@ -11,7 +11,7 @@ declare global {
 }
 
 interface Objects {
-    [key: string | symbol | number]: any;
+    [key: string | symbol | number]: unknown;
 }
 
 export interface InterpreterOptions {
@@ -30,7 +30,14 @@ export interface FunctionData extends Objects {
     name: string;
     description?: string;
     brackets?: boolean;
-    params?: Array<any>;
+    type?: string;
+    async?: boolean;
+    params?: {
+        name?: string;
+        description?: string;
+        required?: boolean;
+        type?: ParamType;
+    }[];
 }
 
 export interface CommandData extends Objects {
@@ -41,12 +48,11 @@ export interface CommandData extends Objects {
 }
 
 export interface FunctionResultData extends Omit<InterpreterOptions, 'client'> {
-    client?: ShouwClient | undefined;
-    result?: string;
+    result: string | unknown;
     error?: boolean;
-    embeds?: Discord.EmbedBuilder[] | Array<object> | object;
-    attachments?: Discord.AttachmentBuilder[] | Array<object> | object;
-    components?: Discord.ActionRowBuilder[] | Array<object> | object;
+    embeds?: Discord.EmbedBuilder[];
+    attachments?: Discord.AttachmentBuilder[];
+    components?: Discord.ActionRowBuilder[];
     flags?: number | string | bigint;
     message?: Discord.Message;
 }
@@ -67,7 +73,7 @@ export interface HelpersData {
 }
 
 export interface ShouwClientOptions extends DiscordType.ClientOptions {
-    [key: string]: any;
+    [key: string]: unknown;
 
     // not finished yet
 }

@@ -1,6 +1,6 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const core_1 = require('../../core');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const core_1 = require("../../core");
 class Description extends core_1.Functions {
     constructor() {
         super({
@@ -25,8 +25,10 @@ class Description extends core_1.Functions {
     }
     code(ctx, [text, index]) {
         index = index ?? 0;
-        if (!ctx.embeds) ctx.embeds = [];
-        if (!ctx.embeds[index]) ctx.embeds[index] = new ctx.discord.EmbedBuilder();
+        if (!ctx.embeds)
+            ctx.embeds = [];
+        if (!ctx.embeds[index])
+            ctx.embeds[index] = new ctx.discord.EmbedBuilder();
         ctx.embeds[index].setDescription(text);
         return {
             result: void 0
