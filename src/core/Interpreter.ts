@@ -2,10 +2,9 @@ import type { Channel } from 'discord.js';
 import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions, FunctionData } from '../typings';
 import * as Discord from 'discord.js';
 import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
-import { CheckCondition } from './Conditions';
-import { IF } from './IF';
+import { CheckCondition, IF } from './';
 
-class Interpreter {
+export class Interpreter {
     public readonly client: Client;
     public readonly functions: FunctionsManager;
     public readonly debug: boolean | undefined;
@@ -268,7 +267,7 @@ class Interpreter {
             const lineFunctions: string[] = [];
 
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K(), '$if', '$endif'].filter(
+                const matchingFunctions = [...this.functions.K, '$if', '$endif'].filter(
                     func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length)
                 );
 
@@ -285,41 +284,3 @@ class Interpreter {
         return functions;
     }
 }
-
-export { Interpreter };
-
-String.prototype.unescape = function () {
-    return this.replace(/#RIGHT#/g, '[')
-        .replace(/#LEFT#/g, ']')
-        .replace(/#SEMI#/g, ';')
-        .replace(/#COLON#/g, ':')
-        .replace(/#CHAR#/g, '$')
-        .replace(/#RIGHT_CLICK#/g, '>')
-        .replace(/#LEFT_CLICK#/g, '<')
-        .replace(/#EQUAL#/g, '=')
-        .replace(/#RIGHT_BRACKET#/g, '{')
-        .replace(/#LEFT_BRACKET#/g, '}')
-        .replace(/#COMMA#/g, ',')
-        .replace(/#LB#/g, '(')
-        .replace(/#RB#/g, ')')
-        .replace(/#AND#/g, '&&')
-        .replace(/#OR#/g, '||');
-};
-
-String.prototype.escape = function () {
-    return this.replace(/\[/g, '#RIGHT#')
-        .replace(/]/g, '#LEFT#')
-        .replace(/;/g, '#SEMI#')
-        .replace(/:/g, '#COLON#')
-        .replace(/\$/g, '#CHAR#')
-        .replace(/>/g, '#RIGHT_CLICK#')
-        .replace(/</g, '#LEFT_CLICK#')
-        .replace(/=/g, '#EQUAL#')
-        .replace(/{/g, '#RIGHT_BRACKET#')
-        .replace(/}/g, '#LEFT_BRACKET#')
-        .replace(/,/g, '#COMMA#')
-        .replace(/\(/g, '#LB#')
-        .replace(/\)/g, '#RB#')
-        .replace(/&&/g, '#AND#')
-        .replace(/\|\|/g, '#OR#');
-};

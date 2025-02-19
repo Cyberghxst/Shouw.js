@@ -4,6 +4,7 @@ export class Context {
     public ctx: Message;
     public args: Array<string>;
     public channel: TextChannel;
+
     constructor(ctx: Message, args: Array<string>) {
         this.ctx = ctx;
         this.args = args;

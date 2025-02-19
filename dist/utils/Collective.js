@@ -1,9 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Saving = void 0;
-class Saving extends Map {
+exports.Collective = void 0;
+class Collective extends Map {
     constructor() {
         super();
+    }
+    create(key, value) {
+        return super.set(key, value);
     }
     filter(fn) {
         return Array.from(this.V).filter(fn);
@@ -27,4 +30,4 @@ class Saving extends Map {
         return [...this.values()];
     }
 }
-exports.Saving = Saving;
+exports.Collective = Collective;

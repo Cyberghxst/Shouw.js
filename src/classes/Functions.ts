@@ -1,9 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { Collective } from '../utils';
 import type { FunctionData } from '../typings';
 import type { ShouwClient } from './ShouwClient';
 
-export class FunctionsManager extends Map<string, FunctionData> {
+export class FunctionsManager extends Collective<string, FunctionData> {
     public readonly client: ShouwClient;
 
     constructor(client: ShouwClient) {
@@ -22,33 +23,9 @@ export class FunctionsManager extends Map<string, FunctionData> {
                 if (!file.endsWith('.js')) continue;
                 const RawFunction = require(filePath).default;
                 const func = new RawFunction();
-                this.create(func);
+                this.create(func.name, func);
                 if (debug) console.log(`Function loaded: ${func.name}`);
             }
         }
-    }
-
-    public create(data: FunctionData) {
-        super.set(data.name, data);
-    }
-
-    public override delete(name: string) {
-        return super.delete(name);
-    }
-
-    public filter(func: (value: FunctionData) => boolean): FunctionData[] {
-        return Array.from(this.V()).filter(func);
-    }
-
-    public filterKeys(func: (key: string) => boolean): string[] {
-        return Array.from(this.K()).filter(func);
-    }
-
-    public V(): Array<FunctionData> {
-        return [...super.values()];
-    }
-
-    public K(): Array<string> {
-        return [...super.keys()];
     }
 }

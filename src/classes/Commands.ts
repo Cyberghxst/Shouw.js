@@ -1,10 +1,11 @@
-import { Saving } from '../utils/Saving';
+import { Collective } from '../utils';
 import { Events } from 'discord.js';
 import { ShouwClient } from './ShouwClient';
+import type { CommandData } from '../typings';
 
 export class CommandsManager {
     public readonly client: ShouwClient;
-    public messageCreate?: Saving;
+    public messageCreate?: Collective<number, CommandData>;
 
     constructor(client: ShouwClient, events: Array<string>) {
         this.client = client;
@@ -14,12 +15,12 @@ export class CommandsManager {
         events.forEach((event: string) => {
             if (event === 'interactionCreate') {
                 this['interactionCreate'] = {
-                    slash: new Saving(),
-                    button: new Saving(),
-                    selectMenu: new Saving()
+                    slash: new Collective(),
+                    button: new Collective(),
+                    selectMenu: new Collective()
                 };
             } else {
-                this[event] = new Saving();
+                this[event] = new Collective();
                 const Events = require(`../events/${event}`).default;
                 this.client.on(event, (...args: any) => Events(...args, this.client));
             }

@@ -17,3 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Context"), exports);
 __exportStar(require("./ShouwClient"), exports);
 __exportStar(require("./Functions"), exports);
+__exportStar(require("./BaseClient"), exports);
+__exportStar(require("./Commands"), exports);

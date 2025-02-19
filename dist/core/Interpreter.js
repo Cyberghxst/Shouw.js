@@ -2,8 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
 const Discord = require("discord.js");
-const Conditions_1 = require("./Conditions");
-const IF_1 = require("./IF");
+const _1 = require("./");
 class Interpreter {
     constructor(cmd, options) {
         this.noop = () => { };
@@ -27,7 +26,7 @@ class Interpreter {
         this.flags = null;
         this.message = null;
         this.helpers = {
-            condition: Conditions_1.CheckCondition,
+            condition: _1.CheckCondition,
             interpreter: Interpreter,
             unescape: (str) => str.unescape(),
             escape: (str) => str.escape()
@@ -52,7 +51,7 @@ class Interpreter {
             let currentCode = code;
             for (const func of functions) {
                 if (func.match(/(\$if|\$endif)$/i)) {
-                    const RESULT = await (0, IF_1.IF)(currentCode, this);
+                    const RESULT = await (0, _1.IF)(currentCode, this);
                     if (RESULT.error) {
                         error = true;
                         break;
@@ -212,7 +211,7 @@ class Interpreter {
             const splited = line.split('$').filter((x) => x.trim() !== '');
             const lineFunctions = [];
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K(), '$if', '$endif'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
+                const matchingFunctions = [...this.functions.K, '$if', '$endif'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
                 if (matchingFunctions.length === 1) {
                     lineFunctions.push(matchingFunctions[0]);
                 }
@@ -227,37 +226,3 @@ class Interpreter {
     }
 }
 exports.Interpreter = Interpreter;
-String.prototype.unescape = function () {
-    return this.replace(/#RIGHT#/g, '[')
-        .replace(/#LEFT#/g, ']')
-        .replace(/#SEMI#/g, ';')
-        .replace(/#COLON#/g, ':')
-        .replace(/#CHAR#/g, '$')
-        .replace(/#RIGHT_CLICK#/g, '>')
-        .replace(/#LEFT_CLICK#/g, '<')
-        .replace(/#EQUAL#/g, '=')
-        .replace(/#RIGHT_BRACKET#/g, '{')
-        .replace(/#LEFT_BRACKET#/g, '}')
-        .replace(/#COMMA#/g, ',')
-        .replace(/#LB#/g, '(')
-        .replace(/#RB#/g, ')')
-        .replace(/#AND#/g, '&&')
-        .replace(/#OR#/g, '||');
-};
-String.prototype.escape = function () {
-    return this.replace(/\[/g, '#RIGHT#')
-        .replace(/]/g, '#LEFT#')
-        .replace(/;/g, '#SEMI#')
-        .replace(/:/g, '#COLON#')
-        .replace(/\$/g, '#CHAR#')
-        .replace(/>/g, '#RIGHT_CLICK#')
-        .replace(/</g, '#LEFT_CLICK#')
-        .replace(/=/g, '#EQUAL#')
-        .replace(/{/g, '#RIGHT_BRACKET#')
-        .replace(/}/g, '#LEFT_BRACKET#')
-        .replace(/,/g, '#COMMA#')
-        .replace(/\(/g, '#LB#')
-        .replace(/\)/g, '#RB#')
-        .replace(/&&/g, '#AND#')
-        .replace(/\|\|/g, '#OR#');
-};

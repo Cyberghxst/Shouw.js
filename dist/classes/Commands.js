@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandsManager = void 0;
-const Saving_1 = require("../utils/Saving");
+const utils_1 = require("../utils");
 const discord_js_1 = require("discord.js");
 class CommandsManager {
     constructor(client, events) {
@@ -12,13 +12,13 @@ class CommandsManager {
         events.forEach((event) => {
             if (event === 'interactionCreate') {
                 this['interactionCreate'] = {
-                    slash: new Saving_1.Saving(),
-                    button: new Saving_1.Saving(),
-                    selectMenu: new Saving_1.Saving()
+                    slash: new utils_1.Collective(),
+                    button: new utils_1.Collective(),
+                    selectMenu: new utils_1.Collective()
                 };
             }
             else {
-                this[event] = new Saving_1.Saving();
+                this[event] = new utils_1.Collective();
                 const Events = require(`../events/${event}`).default;
                 this.client.on(event, (...args) => Events(...args, this.client));
             }

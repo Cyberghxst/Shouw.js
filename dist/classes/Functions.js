@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionsManager = void 0;
 const fs = require("node:fs");
 const path = require("node:path");
-class FunctionsManager extends Map {
+const utils_1 = require("../utils");
+class FunctionsManager extends utils_1.Collective {
     constructor(client) {
         super();
         this.client = client;
@@ -21,29 +22,11 @@ class FunctionsManager extends Map {
                     continue;
                 const RawFunction = require(filePath).default;
                 const func = new RawFunction();
-                this.create(func);
+                this.create(func.name, func);
                 if (debug)
                     console.log(`Function loaded: ${func.name}`);
             }
         }
-    }
-    create(data) {
-        super.set(data.name, data);
-    }
-    delete(name) {
-        return super.delete(name);
-    }
-    filter(func) {
-        return Array.from(this.V()).filter(func);
-    }
-    filterKeys(func) {
-        return Array.from(this.K()).filter(func);
-    }
-    V() {
-        return [...super.values()];
-    }
-    K() {
-        return [...super.keys()];
     }
 }
 exports.FunctionsManager = FunctionsManager;

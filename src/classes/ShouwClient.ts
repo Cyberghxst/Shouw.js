@@ -1,8 +1,7 @@
 import * as path from 'node:path';
 import type { ShouwClientOptions, CommandData } from '../typings';
+import { FunctionsManager, CommandsManager } from './';
 import { BaseClient } from './BaseClient';
-import { FunctionsManager } from './Functions';
-import { CommandsManager } from './Commands';
 
 export class ShouwClient extends BaseClient {
     public functions: FunctionsManager;
