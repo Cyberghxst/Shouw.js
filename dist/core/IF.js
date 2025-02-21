@@ -4,8 +4,14 @@ exports.IF = IF;
 const Interpreter_1 = require("./Interpreter");
 async function IF(code, ctx) {
     if (!code.match(/\$endif/gi)) {
-        console.log('Invalid $if usage: Missing $endif');
-        return { error: true, code };
+        await ctx.error({
+            message: 'Invalid $if usage: Missing $endif',
+            solution: 'Make sure to always use $endif at the end of the $if block'
+        });
+        return {
+            error: true,
+            code: code
+        };
     }
     let result = code;
     const ifStatements = code.split(/\$if\[/gi).slice(1);
@@ -25,8 +31,14 @@ async function IF(code, ctx) {
         if (elseIfMatches) {
             for (const elseIf of statement.split(/\$elseif\[/gi).slice(1)) {
                 if (!elseIf.match(/\$endelseif/gi)) {
-                    console.log('Invalid $elseif usage: Missing $endelseif');
-                    return { error: true, code: result };
+                    await ctx.error({
+                        message: 'Invalid $elseif usage: Missing $endelseif',
+                        solution: 'Make sure to always use $endelseif at the end of the $elseif block'
+                    });
+                    return {
+                        error: true,
+                        code: result
+                    };
                 }
                 const elseifContent = elseIf.split(/\$endelseif/gi)[0];
                 const elseifCondition = extractCondition(elseifContent);

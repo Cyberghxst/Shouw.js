@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js';
+import type { Message, TextChannel } from 'discord.js';
 
 export class Context {
     public ctx: Message;

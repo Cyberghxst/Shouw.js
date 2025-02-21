@@ -11,5 +11,5 @@ client.command({
     name: 'meow',
     type: 'messageCreate',
     code: `halo
-$description[meow]`
+$description`
 });

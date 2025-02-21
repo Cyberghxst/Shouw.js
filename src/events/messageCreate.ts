@@ -1,5 +1,5 @@
-import { Message } from 'discord.js';
-import { ShouwClient, Context } from '../classes';
+import type { Message } from 'discord.js';
+import { type ShouwClient, Context } from '../classes';
 import { Interpreter } from '../core';
 import type { InterpreterOptions } from '../typings';
 
@@ -9,7 +9,7 @@ export default async function Events(message: Message, client: ShouwClient) {
     const commands = client.commands?.messageCreate?.V;
 
     const prefixes: Promise<string | undefined>[] = client.prefix
-        .map(async prefix => {
+        .map(async (prefix) => {
             if (prefix.includes('$') && prefix !== '$') {
                 const result = await new Interpreter({ name: 'prefix', type: 'parsing', code: prefix }, {
                     context: new Context(message, []),
@@ -33,10 +33,9 @@ export default async function Events(message: Message, client: ShouwClient) {
 
         const args = message.content.slice(prefix.length).split(/ +/g);
         const commandName = args.shift()?.toLowerCase();
+
         if (!commandName) continue;
-
-        const command = commands?.find(cmd => cmd.name === commandName || cmd.aliases?.includes(commandName));
-
+        const command = commands?.find((cmd) => cmd.name === commandName || cmd.aliases?.includes(commandName));
         if (!command) break;
 
         await new Interpreter(command, {

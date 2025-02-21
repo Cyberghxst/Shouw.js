@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
 const Discord = require("discord.js");
 const _1 = require("./");
+const chalk = require("chalk");
 class Interpreter {
     constructor(cmd, options) {
         this.noop = () => { };
@@ -66,7 +67,11 @@ class Interpreter {
                 if (!functionData || !functionData.code || typeof functionData.code !== 'function')
                     continue;
                 if (functionData.brackets && !unpacked.brackets) {
-                    console.log(`Invalid ${func} usage: Missing brackets`);
+                    const funcWithParams = `${func}[${functionData.params?.map((x) => x.name).join(';')}]`;
+                    await this.error({
+                        message: `Invalid ${func} usage: Missing brackets`,
+                        solution: `Make sure to add brackets to the function. Example: ${funcWithParams}`
+                    });
                     error = true;
                     break;
                 }
@@ -119,10 +124,11 @@ class Interpreter {
         };
         result = await processFunction(result);
         this.code = result;
-        if ((this.code && this.code !== '') ||
-            this.components.length > 0 ||
-            this.embeds.length > 0 ||
-            this.attachments.length > 0) {
+        if (error === false &&
+            ((this.code && this.code !== '') ||
+                this.components.length > 0 ||
+                this.embeds.length > 0 ||
+                this.attachments.length > 0)) {
             this.message = (await this.context?.send({
                 content: this.code !== '' ? this.code : null,
                 embeds: this.embeds,
@@ -134,7 +140,7 @@ class Interpreter {
         return {
             error: error,
             id: this.message?.id,
-            result: error ? null : this.code.unescape().trim()
+            result: error ? null : this.code
         };
     }
     unpack(func, code) {
@@ -205,13 +211,13 @@ class Interpreter {
         });
     }
     extractFunctions(code = this.code) {
-        const lines = code.split(/\n/)?.filter(line => line.trim() !== '' || line);
+        const lines = code.split(/\n/)?.filter((line) => line.trim() !== '' || line);
         const functions = [];
         for (const line of lines) {
             const splited = line.split('$').filter((x) => x.trim() !== '');
             const lineFunctions = [];
             for (const part of splited) {
-                const matchingFunctions = [...this.functions.K, '$if', '$endif'].filter(func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
+                const matchingFunctions = [...this.functions.K, '$if', '$endif'].filter((func) => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length));
                 if (matchingFunctions.length === 1) {
                     lineFunctions.push(matchingFunctions[0]);
                 }
@@ -223,6 +229,16 @@ class Interpreter {
                 functions.push(...lineFunctions.reverse());
         }
         return functions;
+    }
+    async error(options) {
+        try {
+            await this.context?.send(`\`\`\`\n🚫 ${options.message}${options.solution ? `\n\nSo, what is the solution?\n${options.solution}` : ''}\`\`\``);
+        }
+        catch {
+            console.log(`[${chalk.red('ERROR')}]: ${options.message}`);
+            if (options.solution)
+                console.log(`[${chalk.green('SOLUTION')}]: ${options.solution}`);
+        }
     }
 }
 exports.Interpreter = Interpreter;

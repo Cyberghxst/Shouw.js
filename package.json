@@ -1,10 +1,40 @@
 {
+    "name": "shouwyee",
+    "version": "0.0.1",
+    "description": "Aoi.js, but coded using TypeScript.",
+    "type": "commonjs",
+    "main": "dist/index.js",
+    "keywords": ["discord.js", "aoi.js", "shouwyee", "bdfd", "discord", "bot"],
+    "scripts": {
+        "format": "biome format --write src",
+        "dev": "node test"
+    },
+    "author": "Tyowk <tyowk@outlook.com>",
+    "license": "MIT",
     "dependencies": {
+        "chalk": "^4.1.2",
         "discord.js": "^14.18.0"
     },
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
-        "prettier": "^3.5.1",
         "typescript": "^5.7.3"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tyowk/shouwyee.git"
+    },
+    "funding": [
+        {
+            "type": "individual",
+            "url": "https://trakteer.id/tyowk"
+        },
+        {
+            "type": "patreon",
+            "url": "https://www.patreon.com/tyowk_dev"
+        }
+    ],
+    "bugs": {
+        "url": "https://github.com/tyowk/shouwyee/issues"
+    },
+    "files": ["dist", "README.md", "LICENSE", "package.json"]
 }

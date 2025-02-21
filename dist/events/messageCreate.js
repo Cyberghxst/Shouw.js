@@ -33,7 +33,7 @@ async function Events(message, client) {
         const commandName = args.shift()?.toLowerCase();
         if (!commandName)
             continue;
-        const command = commands?.find(cmd => cmd.name === commandName || cmd.aliases?.includes(commandName));
+        const command = commands?.find((cmd) => cmd.name === commandName || cmd.aliases?.includes(commandName));
         if (!command)
             break;
         await new core_1.Interpreter(command, {

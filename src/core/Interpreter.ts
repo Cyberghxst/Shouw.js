@@ -3,6 +3,7 @@ import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions, Fun
 import * as Discord from 'discord.js';
 import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
 import { CheckCondition, IF } from './';
+import * as chalk from 'chalk';
 
 export class Interpreter {
     public readonly client: Client;
@@ -75,7 +76,7 @@ export class Interpreter {
             let currentCode = code;
             for (const func of functions) {
                 if (func.match(/(\$if|\$endif)$/i)) {
-                    const RESULT = await IF(currentCode, this as InterpreterOptions);
+                    const RESULT = await IF(currentCode, this);
                     if (RESULT.error) {
                         error = true;
                         break;
@@ -90,7 +91,12 @@ export class Interpreter {
                 const functionData: FunctionData | undefined = this.functions.get(func);
                 if (!functionData || !functionData.code || typeof functionData.code !== 'function') continue;
                 if (functionData.brackets && !unpacked.brackets) {
-                    console.log(`Invalid ${func} usage: Missing brackets`);
+                    const funcWithParams = `${func}[${functionData.params?.map((x) => x.name).join(';')}]`;
+                    await this.error({
+                        message: `Invalid ${func} usage: Missing brackets`,
+                        solution: `Make sure to add brackets to the function. Example: ${funcWithParams}`
+                    });
+
                     error = true;
                     break;
                 }
@@ -155,11 +161,13 @@ export class Interpreter {
 
         result = await processFunction(result);
         this.code = result;
+
         if (
-            (this.code && this.code !== '') ||
-            this.components.length > 0 ||
-            this.embeds.length > 0 ||
-            this.attachments.length > 0
+            error === false &&
+            ((this.code && this.code !== '') ||
+                this.components.length > 0 ||
+                this.embeds.length > 0 ||
+                this.attachments.length > 0)
         ) {
             this.message = (await this.context?.send({
                 content: this.code !== '' ? this.code : null,
@@ -173,7 +181,7 @@ export class Interpreter {
         return {
             error: error,
             id: this.message?.id,
-            result: error ? null : this.code.unescape().trim()
+            result: error ? null : this.code
         };
     }
 
@@ -259,7 +267,7 @@ export class Interpreter {
     }
 
     private extractFunctions(code = this.code): Array<string> {
-        const lines = code.split(/\n/)?.filter(line => line.trim() !== '' || line);
+        const lines = code.split(/\n/)?.filter((line) => line.trim() !== '' || line);
         const functions: string[] = [];
 
         for (const line of lines) {
@@ -268,7 +276,7 @@ export class Interpreter {
 
             for (const part of splited) {
                 const matchingFunctions = [...this.functions.K, '$if', '$endif'].filter(
-                    func => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length)
+                    (func) => func.toLowerCase() === `$${part.toLowerCase()}`.slice(0, func.length)
                 );
 
                 if (matchingFunctions.length === 1) {
@@ -282,5 +290,16 @@ export class Interpreter {
         }
 
         return functions;
+    }
+
+    public async error(options: { message: string; solution?: string }) {
+        try {
+            await this.context?.send(
+                `\`\`\`\n🚫 ${options.message}${options.solution ? `\n\nSo, what is the solution?\n${options.solution}` : ''}\`\`\``
+            );
+        } catch {
+            console.log(`[${chalk.red('ERROR')}]: ${options.message}`);
+            if (options.solution) console.log(`[${chalk.green('SOLUTION')}]: ${options.solution}`);
+        }
     }
 }

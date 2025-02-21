@@ -29,7 +29,7 @@ class CheckCondition {
     }
     static solveEqual(msg) {
         let pass = false;
-        const parts = msg.split('==').map(part => part.trim());
+        const parts = msg.split('==').map((part) => part.trim());
         if (parts[0].unescape() === parts[1].unescape())
             pass = true;
         return pass;

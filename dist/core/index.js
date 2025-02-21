@@ -18,7 +18,7 @@ __exportStar(require("./Interpreter"), exports);
 __exportStar(require("./Functions"), exports);
 __exportStar(require("./Conditions"), exports);
 __exportStar(require("./IF"), exports);
-String.prototype.unescape = function unescape() {
+String.prototype.unescape = function () {
     return this.replace(/#RIGHT#/g, '[')
         .replace(/#LEFT#/g, ']')
         .replace(/#SEMI#/g, ';')
@@ -35,7 +35,7 @@ String.prototype.unescape = function unescape() {
         .replace(/#AND#/g, '&&')
         .replace(/#OR#/g, '||');
 };
-String.prototype.escape = function escape() {
+String.prototype.escape = function () {
     return this.replace(/\[/g, '#RIGHT#')
         .replace(/]/g, '#LEFT#')
         .replace(/;/g, '#SEMI#')

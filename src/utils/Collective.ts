@@ -1,8 +1,4 @@
 export class Collective<K, V> extends Map<K, V> {
-    constructor() {
-        super();
-    }
-
     public create(key: K, value: V) {
         return super.set(key, value);
     }
@@ -11,11 +7,11 @@ export class Collective<K, V> extends Map<K, V> {
         return Array.from(this.V).filter(fn);
     }
 
-    public filterKeys(fn: (key: K, index: number, array: K[]) => K[]): any[] {
+    public filterKeys(fn: (key: K, index: number, array: K[]) => K[]): unknown[] {
         return Array.from(this.K).filter(fn);
     }
 
-    public find(fn: (value: V, index: number, array: V[]) => V | undefined): any | undefined {
+    public find(fn: (value: V, index: number, array: V[]) => V | undefined): unknown | undefined {
         return Array.from(this.V).find(fn);
     }
 

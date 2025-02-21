@@ -2,9 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Collective = void 0;
 class Collective extends Map {
-    constructor() {
-        super();
-    }
     create(key, value) {
         return super.set(key, value);
     }

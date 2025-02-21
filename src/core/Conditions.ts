@@ -34,7 +34,7 @@ export class CheckCondition {
 
     public static solveEqual(msg: string) {
         let pass = false;
-        const parts = msg.split('==').map(part => part.trim());
+        const parts = msg.split('==').map((part) => part.trim());
         if (parts[0].unescape() === parts[1].unescape()) pass = true;
         return pass;
     }

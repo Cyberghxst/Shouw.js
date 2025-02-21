@@ -8,10 +8,10 @@ class CommandsManager {
         this.client = client;
         if (!Array.isArray(events))
             return;
-        events = events.filter((e) => Object.values(discord_js_1.Events).includes(e));
-        events.forEach((event) => {
+        const _events = events.filter((e) => Object.values(discord_js_1.Events).includes(e));
+        for (const event of _events) {
             if (event === 'interactionCreate') {
-                this['interactionCreate'] = {
+                this.interactionCreate = {
                     slash: new utils_1.Collective(),
                     button: new utils_1.Collective(),
                     selectMenu: new utils_1.Collective()
@@ -22,7 +22,7 @@ class CommandsManager {
                 const Events = require(`../events/${event}`).default;
                 this.client.on(event, (...args) => Events(...args, this.client));
             }
-        });
+        }
     }
 }
 exports.CommandsManager = CommandsManager;

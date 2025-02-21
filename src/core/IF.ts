@@ -1,10 +1,22 @@
-import type { InterpreterOptions } from '../typings';
 import { Interpreter } from './Interpreter';
 
-export async function IF(code: string, ctx: InterpreterOptions) {
+export async function IF(
+    code: string,
+    ctx: Interpreter
+): Promise<{
+    error: boolean;
+    code: string;
+}> {
     if (!code.match(/\$endif/gi)) {
-        console.log('Invalid $if usage: Missing $endif');
-        return { error: true, code };
+        await ctx.error({
+            message: 'Invalid $if usage: Missing $endif',
+            solution: 'Make sure to always use $endif at the end of the $if block'
+        });
+
+        return {
+            error: true,
+            code: code
+        };
     }
 
     let result = code;
@@ -26,7 +38,7 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                         name: 'if',
                         type: 'parsing'
                     },
-                    ctx as InterpreterOptions
+                    ctx as Interpreter
                 ).initialize()
             ).result === 'true';
 
@@ -36,8 +48,15 @@ export async function IF(code: string, ctx: InterpreterOptions) {
         if (elseIfMatches) {
             for (const elseIf of statement.split(/\$elseif\[/gi).slice(1)) {
                 if (!elseIf.match(/\$endelseif/gi)) {
-                    console.log('Invalid $elseif usage: Missing $endelseif');
-                    return { error: true, code: result };
+                    await ctx.error({
+                        message: 'Invalid $elseif usage: Missing $endelseif',
+                        solution: 'Make sure to always use $endelseif at the end of the $elseif block'
+                    });
+
+                    return {
+                        error: true,
+                        code: result
+                    };
                 }
 
                 const elseifContent = elseIf.split(/\$endelseif/gi)[0];
@@ -80,7 +99,7 @@ export async function IF(code: string, ctx: InterpreterOptions) {
                                     name: 'if',
                                     type: 'parsing'
                                 },
-                                ctx as InterpreterOptions
+                                ctx as Interpreter
                             ).initialize()
                         ).result === 'true';
 

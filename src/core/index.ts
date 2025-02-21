@@ -3,7 +3,7 @@ export * from './Functions';
 export * from './Conditions';
 export * from './IF';
 
-String.prototype.unescape = function unescape() {
+String.prototype.unescape = function () {
     return this.replace(/#RIGHT#/g, '[')
         .replace(/#LEFT#/g, ']')
         .replace(/#SEMI#/g, ';')
@@ -21,7 +21,7 @@ String.prototype.unescape = function unescape() {
         .replace(/#OR#/g, '||');
 };
 
-String.prototype.escape = function escape() {
+String.prototype.escape = function () {
     return this.replace(/\[/g, '#RIGHT#')
         .replace(/]/g, '#LEFT#')
         .replace(/;/g, '#SEMI#')
