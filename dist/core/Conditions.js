@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CheckCondition = void 0;
-// biome-ignore lint:
+// biome-ignore lint: class static methods.
 class CheckCondition {
     static hasAnd(msg) {
         return msg.includes('&&');
@@ -138,7 +138,7 @@ class CheckCondition {
         if (result.split('(').length !== result.split(')').length)
             result = result + ')'.repeat(result.split('(').length - result.split(')').length);
         try {
-            // biome-ignore lint:
+            // biome-ignore lint: danger evaluation.
             return eval(result);
         }
         catch {

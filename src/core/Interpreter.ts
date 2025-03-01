@@ -1,10 +1,24 @@
-import type { Channel } from 'discord.js';
+// import typings.
+import type {
+    Channel,
+    BitFieldResolvable,
+    MessageFlags,
+    JSONEncodable,
+    APIActionRowComponent,
+    APIMessageActionRowComponent,
+    ActionRowData,
+    MessageActionRowComponentData,
+    MessageActionRowComponentBuilder
+} from 'discord.js';
 import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions, FunctionData } from '../typings';
-import * as Discord from 'discord.js';
 import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
+
+// import modules.
 import { CheckCondition, IF } from './';
 import * as chalk from 'chalk';
+import * as Discord from 'discord.js';
 
+// Interpreter class
 export class Interpreter {
     public readonly client: Client;
     public readonly functions: FunctionsManager;
@@ -18,13 +32,17 @@ export class Interpreter {
     public user?: Discord.User;
     public context?: Context;
     public args?: string[];
-    public content: string | null;
+    public content: string | undefined;
     public embeds: Discord.EmbedBuilder[];
     public attachments: Discord.AttachmentBuilder[];
-    public components: Discord.ActionRowBuilder[];
+    public components: readonly (
+        | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>
+        | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
+        | APIActionRowComponent<APIMessageActionRowComponent>
+    )[];
     public stickers: Discord.Sticker[];
-    public flags: number | string | bigint | null;
-    public message: Discord.Message | null;
+    public flags: number | string | bigint | undefined;
+    public message: Discord.Message | undefined;
     public noop: () => void = () => {};
     public helpers: HelpersData;
     public Temporarily: TemporarilyData;
@@ -42,13 +60,13 @@ export class Interpreter {
         this.user = options.user;
         this.context = options.context;
         this.args = options.args;
-        this.content = null;
+        this.content = void 0;
         this.embeds = [];
         this.attachments = [];
         this.components = [];
         this.stickers = [];
-        this.flags = null;
-        this.message = null;
+        this.flags = void 0;
+        this.message = void 0;
         this.helpers = {
             condition: CheckCondition,
             interpreter: Interpreter,
@@ -66,6 +84,7 @@ export class Interpreter {
             } as TemporarilyData);
     }
 
+    // initialized the interpreter to run the code.
     public async initialize() {
         let result = this.code;
         let error = false;
@@ -170,11 +189,16 @@ export class Interpreter {
                 this.attachments.length > 0)
         ) {
             this.message = (await this.context?.send({
-                content: this.code !== '' ? this.code : null,
+                content: this.code !== '' ? this.code : void 0,
                 embeds: this.embeds,
                 components: this.components,
                 files: this.attachments,
-                flags: this.flags
+                flags: this.flags as
+                    | BitFieldResolvable<
+                          'SuppressEmbeds' | 'SuppressNotifications',
+                          MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications
+                      >
+                    | undefined
             })) as Discord.Message;
         }
 
@@ -185,6 +209,7 @@ export class Interpreter {
         };
     }
 
+    // unpacking the parameters of the function.
     private unpack(
         func: string,
         code: string
@@ -235,6 +260,7 @@ export class Interpreter {
         return { func, args, brackets: true, all };
     }
 
+    // extracting the arguments inside the brackets.
     private extractArguments(argsStr: string): Array<string> {
         const args: string[] = [];
         let depth = 0;
@@ -266,6 +292,7 @@ export class Interpreter {
         });
     }
 
+    // extracting the functions inside the code.
     private extractFunctions(code = this.code): Array<string> {
         const lines = code.split(/\n/)?.filter((line) => line.trim() !== '' || line);
         const functions: string[] = [];
@@ -292,6 +319,7 @@ export class Interpreter {
         return functions;
     }
 
+    // error message handler.
     public async error(options: { message: string; solution?: string }) {
         try {
             await this.context?.send(

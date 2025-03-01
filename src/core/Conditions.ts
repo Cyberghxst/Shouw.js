@@ -1,4 +1,4 @@
-// biome-ignore lint:
+// biome-ignore lint: class static methods.
 export class CheckCondition {
     public static hasAnd(msg: string) {
         return msg.includes('&&');
@@ -136,7 +136,7 @@ export class CheckCondition {
             result = result + ')'.repeat(result.split('(').length - result.split(')').length);
 
         try {
-            // biome-ignore lint:
+            // biome-ignore lint: danger evaluation.
             return eval(result);
         } catch {
             return false;

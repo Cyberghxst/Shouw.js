@@ -76,8 +76,10 @@ async function IF(code, ctx) {
                 }
             }
         }
-        result = code.replace(/\$if\[/gi, '$if[').replace(/\$endif/gi, '$endif');
-        result = code.replace(`$if[${conditionBlock}$endif`, conditionResult ? ifCodeBlock : isConditionPassed ? finalCode : elseCodeBlock);
+        result = code
+            .replace(/\$if\[/gi, '$if[')
+            .replace(/\$endif/gi, '$endif')
+            .replace(`$if[${conditionBlock}$endif`, conditionResult ? ifCodeBlock : isConditionPassed ? finalCode : elseCodeBlock);
     }
     return { error: false, code: result };
 }

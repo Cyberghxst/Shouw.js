@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
-const Discord = require("discord.js");
+// import modules.
 const _1 = require("./");
 const chalk = require("chalk");
+const Discord = require("discord.js");
+// Interpreter class
 class Interpreter {
     constructor(cmd, options) {
         this.noop = () => { };
@@ -19,13 +21,13 @@ class Interpreter {
         this.user = options.user;
         this.context = options.context;
         this.args = options.args;
-        this.content = null;
+        this.content = void 0;
         this.embeds = [];
         this.attachments = [];
         this.components = [];
         this.stickers = [];
-        this.flags = null;
-        this.message = null;
+        this.flags = void 0;
+        this.message = void 0;
         this.helpers = {
             condition: _1.CheckCondition,
             interpreter: Interpreter,
@@ -42,6 +44,7 @@ class Interpreter {
                     timezone: 'UTC'
                 };
     }
+    // initialized the interpreter to run the code.
     async initialize() {
         let result = this.code;
         let error = false;
@@ -130,7 +133,7 @@ class Interpreter {
                 this.embeds.length > 0 ||
                 this.attachments.length > 0)) {
             this.message = (await this.context?.send({
-                content: this.code !== '' ? this.code : null,
+                content: this.code !== '' ? this.code : void 0,
                 embeds: this.embeds,
                 components: this.components,
                 files: this.attachments,
@@ -143,6 +146,7 @@ class Interpreter {
             result: error ? null : this.code
         };
     }
+    // unpacking the parameters of the function.
     unpack(func, code) {
         const funcStart = code.toLowerCase().indexOf(func.toLowerCase());
         if (funcStart === -1)
@@ -179,6 +183,7 @@ class Interpreter {
         const all = code.slice(funcStart, closeBracketIndex + 1);
         return { func, args, brackets: true, all };
     }
+    // extracting the arguments inside the brackets.
     extractArguments(argsStr) {
         const args = [];
         let depth = 0;
@@ -210,6 +215,7 @@ class Interpreter {
             return void 0;
         });
     }
+    // extracting the functions inside the code.
     extractFunctions(code = this.code) {
         const lines = code.split(/\n/)?.filter((line) => line.trim() !== '' || line);
         const functions = [];
@@ -230,6 +236,7 @@ class Interpreter {
         }
         return functions;
     }
+    // error message handler.
     async error(options) {
         try {
             await this.context?.send(`\`\`\`\n🚫 ${options.message}${options.solution ? `\n\nSo, what is the solution?\n${options.solution}` : ''}\`\`\``);

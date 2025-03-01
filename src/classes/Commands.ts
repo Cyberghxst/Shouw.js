@@ -27,8 +27,7 @@ export class CommandsManager {
                 };
             } else {
                 this[event] = new Collective();
-                const Events = require(`../events/${event}`).default;
-                this.client.on(event, (...args) => Events(...args, this.client));
+                this.client.on(event, (...args) => require(`../events/${event}`).default(...args, this.client));
             }
         }
     }

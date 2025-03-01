@@ -1,19 +1,16 @@
 import type * as Discord from 'discord.js';
 import type * as DiscordType from 'discord.js';
-import type { Context, ShouwClient } from './classes';
-import type { CheckCondition, Interpreter, ParamType, Functions } from './core';
-
+import type { Context, ShouwClient } from '../classes';
+import type { CheckCondition, Interpreter, ParamType } from '../core';
 declare global {
     interface String {
         unescape(): string;
         escape(): string;
     }
 }
-
 interface Objects {
     [key: string | symbol | number]: unknown;
 }
-
 export interface InterpreterOptions {
     client: ShouwClient;
     guild?: Discord.Guild;
@@ -25,7 +22,6 @@ export interface InterpreterOptions {
     debug?: boolean;
     Temporarily?: TemporarilyData;
 }
-
 export interface FunctionData extends Objects {
     name: string;
     description?: string;
@@ -39,7 +35,6 @@ export interface FunctionData extends Objects {
         type?: ParamType;
     }[];
 }
-
 export interface CommandData extends Objects {
     name?: string;
     aliases?: string | string[];
@@ -47,7 +42,6 @@ export interface CommandData extends Objects {
     type: string;
     prototype?: string;
 }
-
 export interface FunctionResultData extends Omit<InterpreterOptions, 'client'> {
     result: string | unknown;
     error?: boolean;
@@ -57,7 +51,6 @@ export interface FunctionResultData extends Omit<InterpreterOptions, 'client'> {
     flags?: number | string | bigint;
     message?: Discord.Message;
 }
-
 export interface TemporarilyData {
     arrays: Objects;
     variables: Objects;
@@ -65,16 +58,15 @@ export interface TemporarilyData {
     randoms: Objects;
     timezone: string;
 }
-
 export interface HelpersData {
     condition: typeof CheckCondition;
     interpreter: typeof Interpreter;
     unescape: (str: string) => string;
     escape: (str: string) => string;
 }
-
 export interface ShouwClientOptions extends DiscordType.ClientOptions {
-    token: string;
+    token: undefined | string;
     events: Array<keyof DiscordType.ClientEvents>;
-    prefix: string[];
+    prefix: string | string[];
 }
+export {};
