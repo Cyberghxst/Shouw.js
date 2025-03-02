@@ -7,7 +7,7 @@
     "keywords": ["discord.js", "aoi.js", "shouwyee", "bdfd", "discord", "bot"],
     "scripts": {
         "format": "biome format --write src",
-        "dev": "node test"
+        "dev": "node __test__"
     },
     "author": "Tyowk <tyowk@outlook.com>",
     "license": "MIT",
