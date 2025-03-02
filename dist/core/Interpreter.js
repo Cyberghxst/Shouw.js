@@ -54,122 +54,129 @@ class Interpreter {
     }
     // initialized the interpreter to run the code.
     async initialize() {
-        let result = this.code;
-        let error = false;
-        const processFunction = async (code) => {
-            const functions = this.extractFunctions(code);
-            if (functions.length === 0)
-                return code;
-            let currentCode = code;
-            for (const func of functions) {
-                if (func.match(/(\$if|\$endif)$/i)) {
-                    const RESULT = await (0, _1.IF)(currentCode, this);
-                    if (RESULT.error) {
+        try {
+            let result = this.code;
+            let error = false;
+            const processFunction = async (code) => {
+                const functions = this.extractFunctions(code);
+                if (functions.length === 0)
+                    return code;
+                let currentCode = code;
+                for (const func of functions) {
+                    if (func.match(/(\$if|\$endif)$/i)) {
+                        const RESULT = await (0, _1.IF)(currentCode, this);
+                        if (RESULT.error) {
+                            error = true;
+                            break;
+                        }
+                        currentCode = await processFunction(RESULT.code);
+                        break;
+                    }
+                    const unpacked = this.unpack(func, currentCode);
+                    if (!unpacked.all)
+                        continue;
+                    const functionData = this.functions.get(func);
+                    if (!functionData || !functionData.code || typeof functionData.code !== 'function')
+                        continue;
+                    if (functionData.brackets && !unpacked.brackets) {
+                        const funcWithParams = `${func}[${functionData.params?.map((x) => x.name).join(';')}]`;
+                        await this.error({
+                            message: `Invalid ${func} usage: Missing brackets`,
+                            solution: `Make sure to add brackets to the function. Example: ${funcWithParams}`
+                        });
                         error = true;
                         break;
                     }
-                    currentCode = await processFunction(RESULT.code);
-                    break;
-                }
-                const unpacked = this.unpack(func, currentCode);
-                if (!unpacked.all)
-                    continue;
-                const functionData = this.functions.get(func);
-                if (!functionData || !functionData.code || typeof functionData.code !== 'function')
-                    continue;
-                if (functionData.brackets && !unpacked.brackets) {
-                    const funcWithParams = `${func}[${functionData.params?.map((x) => x.name).join(';')}]`;
-                    await this.error({
-                        message: `Invalid ${func} usage: Missing brackets`,
-                        solution: `Make sure to add brackets to the function. Example: ${funcWithParams}`
-                    });
-                    error = true;
-                    break;
-                }
-                const processedArgs = [];
-                if (unpacked.args.length > 0) {
-                    for (const arg of unpacked.args) {
-                        if (!arg) {
-                            processedArgs.push(void 0);
-                            continue;
+                    const processedArgs = [];
+                    if (unpacked.args.length > 0) {
+                        for (const arg of unpacked.args) {
+                            if (!arg) {
+                                processedArgs.push(void 0);
+                                continue;
+                            }
+                            if ((typeof arg === 'string' && !arg.match(/\$/g)) || typeof arg !== 'string') {
+                                processedArgs.push(arg);
+                                continue;
+                            }
+                            const processed = await processFunction(arg);
+                            processedArgs.push(processed);
                         }
-                        if ((typeof arg === 'string' && !arg.match(/\$/g)) || typeof arg !== 'string') {
-                            processedArgs.push(arg);
-                            continue;
-                        }
-                        const processed = await processFunction(arg);
-                        processedArgs.push(processed);
+                    }
+                    const DATA = (await functionData.code({
+                        ...this,
+                        interpreter: Interpreter,
+                        data: this.Temporarily
+                    }, processedArgs, this.Temporarily)) ?? {};
+                    const result = DATA.result?.toString().escape() ?? '';
+                    currentCode = currentCode.replace(unpacked.all, result);
+                    if (DATA.error === true) {
+                        error = true;
+                        break;
+                    }
+                    if (DATA.embeds) {
+                        this.embeds = DATA.embeds;
+                    }
+                    if (DATA.attachments) {
+                        this.attachments = DATA.attachments;
+                    }
+                    if (DATA.components) {
+                        this.components = DATA.components;
+                    }
+                    if (DATA.stickers) {
+                        this.stickers = DATA.stickers;
+                    }
+                    if (DATA.flags) {
+                        this.flags = DATA.flags;
+                    }
+                    if (DATA.message) {
+                        this.message = DATA.message;
                     }
                 }
-                const DATA = (await functionData.code({
-                    ...this,
-                    interpreter: Interpreter,
-                    data: this.Temporarily
-                }, processedArgs, this.Temporarily)) ?? {};
-                const result = DATA.result?.toString().escape() ?? '';
-                currentCode = currentCode.replace(unpacked.all, result);
-                if (DATA.error === true) {
-                    error = true;
-                    break;
-                }
-                if (DATA.embeds) {
-                    this.embeds = DATA.embeds;
-                }
-                if (DATA.attachments) {
-                    this.attachments = DATA.attachments;
-                }
-                if (DATA.components) {
-                    this.components = DATA.components;
-                }
-                if (DATA.stickers) {
-                    this.stickers = DATA.stickers;
-                }
-                if (DATA.flags) {
-                    this.flags = DATA.flags;
-                }
-                if (DATA.message) {
-                    this.message = DATA.message;
-                }
-            }
-            return currentCode.unescape().trim();
-        };
-        result = await processFunction(result);
-        this.code = result;
-        if (this.extras.sendMessage === true &&
-            error === false &&
-            ((this.code && this.code !== '') ||
-                this.components.length > 0 ||
-                this.embeds.length > 0 ||
-                this.attachments.length > 0)) {
-            this.message = (await this.context?.send({
-                content: this.code !== '' ? this.code : void 0,
-                embeds: this.embeds,
-                components: this.components,
-                files: this.attachments,
-                flags: this.flags
-            }));
-        }
-        const resultObject = {};
-        if (this.extras.returnId === true && this.message instanceof Discord.Message) {
-            resultObject.id = this.message?.id;
-        }
-        if (this.extras.returnResult === true) {
-            resultObject.result = error ? void 0 : this.code;
-        }
-        if (this.extras.returnError === true) {
-            resultObject.error = error;
-        }
-        if (this.extras.returnData === true) {
-            resultObject.data = {
-                ...this.Temporarily,
-                embeds: this.embeds,
-                components: this.components,
-                attachments: this.attachments,
-                flags: this.flags,
-                args: this.args
+                return currentCode.unescape().trim();
             };
+            result = await processFunction(result);
+            this.code = result;
+            if (this.extras.sendMessage === true &&
+                error === false &&
+                ((this.code && this.code !== '') ||
+                    this.components.length > 0 ||
+                    this.embeds.length > 0 ||
+                    this.attachments.length > 0)) {
+                this.message = (await this.context?.send({
+                    content: this.code !== '' ? this.code : void 0,
+                    embeds: this.embeds,
+                    components: this.components,
+                    files: this.attachments,
+                    flags: this.flags
+                }));
+            }
+            const resultObject = {};
+            if (this.extras.returnId === true && this.message instanceof Discord.Message) {
+                resultObject.id = this.message?.id;
+            }
+            if (this.extras.returnResult === true) {
+                resultObject.result = error ? void 0 : this.code;
+            }
+            if (this.extras.returnError === true) {
+                resultObject.error = error;
+            }
+            if (this.extras.returnData === true) {
+                resultObject.data = {
+                    ...this.Temporarily,
+                    embeds: this.embeds,
+                    components: this.components,
+                    attachments: this.attachments,
+                    flags: this.flags,
+                    args: this.args
+                };
+            }
+            return resultObject;
+            // biome-ignore lint: err: any
         }
-        return resultObject;
+        catch (err) {
+            console.log(`[${chalk.red('ERROR')}] :: ${err?.stack ?? err}`);
+            return {};
+        }
     }
     // unpacking the parameters of the function.
     unpack(func, code) {
@@ -267,9 +274,9 @@ class Interpreter {
             await this.context?.send(`\`\`\`\n🚫 ${options.message}${options.solution ? `\n\nSo, what is the solution?\n${options.solution}` : ''}\`\`\``);
         }
         catch {
-            console.log(`[${chalk.red('ERROR')}]: ${options.message}`);
+            console.log(`[${chalk.red('ERROR')}] :: ${options.message}`);
             if (options.solution)
-                console.log(`[${chalk.green('SOLUTION')}]: ${options.solution}`);
+                console.log(`[${chalk.green('SOLUTION')}] :: ${options.solution}`);
         }
     }
 }
