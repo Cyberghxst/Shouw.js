@@ -25,10 +25,11 @@ export default class Description extends Functions {
     }
 
     code(ctx: Interpreter, [text, index]: [string, number?]): FunctionResultData {
-        index = index ?? 0;
+        index = !index ? 0 : index - 1;
         if (!ctx.embeds) ctx.embeds = [];
         if (!ctx.embeds[index]) ctx.embeds[index] = new ctx.discord.EmbedBuilder();
         ctx.embeds[index].setDescription(text);
+        ctx.embeds.filter(Boolean);
 
         return {
             result: void 0

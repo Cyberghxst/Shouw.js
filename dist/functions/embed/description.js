@@ -24,12 +24,13 @@ class Description extends core_1.Functions {
         });
     }
     code(ctx, [text, index]) {
-        index = index ?? 0;
+        index = !index ? 0 : index - 1;
         if (!ctx.embeds)
             ctx.embeds = [];
         if (!ctx.embeds[index])
             ctx.embeds[index] = new ctx.discord.EmbedBuilder();
         ctx.embeds[index].setDescription(text);
+        ctx.embeds.filter(Boolean);
         return {
             result: void 0
         };
