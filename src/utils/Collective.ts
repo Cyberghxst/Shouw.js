@@ -7,11 +7,11 @@ export class Collective<K, V> extends Map<K, V> {
         return Array.from(this.V).filter(fn);
     }
 
-    public filterKeys(fn: (key: K, index: number, array: K[]) => K[]): unknown[] {
+    public filterKeys(fn: (key: K, index: number, array: K[]) => K[]): K[] {
         return Array.from(this.K).filter(fn);
     }
 
-    public find(fn: (value: V, index: number, array: V[]) => V | undefined): unknown | undefined {
+    public find(fn: (value: V, index: number, array: V[]) => V | undefined): V | undefined {
         return Array.from(this.V).find(fn);
     }
 
@@ -23,11 +23,11 @@ export class Collective<K, V> extends Map<K, V> {
         return super.has(key);
     }
 
-    public get K() {
+    public get K(): Array<K> {
         return [...this.keys()];
     }
 
-    public get V() {
+    public get V(): Array<V> {
         return [...this.values()];
     }
 }

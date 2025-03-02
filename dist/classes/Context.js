@@ -24,7 +24,6 @@ class Context {
             return void 0;
         return await this.channel?.send(data);
     }
-    // biome-ignore lint: data: any, Promise<any>
     async reply(data) {
         if (this.isInteraction(this.interaction)) {
             return await this.interaction?.reply(data);

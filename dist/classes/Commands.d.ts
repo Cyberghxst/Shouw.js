@@ -8,6 +8,7 @@ export declare class CommandsManager {
         slash: Collective<number, CommandData>;
         button: Collective<number, CommandData>;
         selectMenu: Collective<number, CommandData>;
+        modal: Collective<number, CommandData>;
     };
     constructor(client: ShouwClient, events: Array<string>);
 }

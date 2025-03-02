@@ -4,14 +4,7 @@
     "description": "Aoi.js, but coded using TypeScript and better interpreter (maybe)",
     "type": "commonjs",
     "main": "dist/index.js",
-    "keywords": [
-        "discord.js",
-        "aoi.js",
-        "shouwyee",
-        "bdfd",
-        "discord",
-        "bot"
-    ],
+    "keywords": ["discord.js", "aoi.js", "shouwyee", "bdfd", "discord", "bot"],
     "scripts": {
         "format": "biome format --write src",
         "dev": "node test"
@@ -43,10 +36,5 @@
     "bugs": {
         "url": "https://github.com/tyowk/shouwyee/issues"
     },
-    "files": [
-        "dist",
-        "README.md",
-        "LICENSE",
-        "package.json"
-    ]
+    "files": ["dist", "README.md", "LICENSE", "package.json"]
 }

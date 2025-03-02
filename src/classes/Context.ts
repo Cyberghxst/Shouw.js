@@ -73,7 +73,6 @@ export class Context {
         data: string | (InteractionReplyOptions & { fetchReply?: boolean; withResponse?: boolean })
     ): Promise<InteractionCallbackResponse>;
 
-    // biome-ignore lint: data: any, Promise<any>
     public async reply(data: any): Promise<any> {
         if (this.isInteraction(this.interaction)) {
             return await this.interaction?.reply(data);

@@ -10,6 +10,7 @@ export class CommandsManager {
         slash: Collective<number, CommandData>;
         button: Collective<number, CommandData>;
         selectMenu: Collective<number, CommandData>;
+        modal: Collective<number, CommandData>;
     };
 
     constructor(client: ShouwClient, events: Array<string>) {
@@ -20,15 +21,17 @@ export class CommandsManager {
 
         for (const event of _events) {
             if (event === 'interactionCreate') {
-                this.interactionCreate = {
+                this[event] = {
                     slash: new Collective(),
                     button: new Collective(),
-                    selectMenu: new Collective()
+                    selectMenu: new Collective(),
+                    modal: new Collective()
                 };
             } else {
                 this[event] = new Collective();
-                this.client.on(event, (...args) => require(`../events/${event}`).default(...args, this.client));
             }
+
+            this.client.on(event, (...args) => require(`../events/${event}`).default(...args, this.client));
         }
     }
 }

@@ -171,7 +171,6 @@ class Interpreter {
                 };
             }
             return resultObject;
-            // biome-ignore lint: err: any
         }
         catch (err) {
             console.log(`[${chalk.red('ERROR')}] :: ${err?.stack ?? err}`);
