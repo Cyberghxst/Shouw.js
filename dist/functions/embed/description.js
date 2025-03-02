@@ -30,7 +30,7 @@ class Description extends core_1.Functions {
         if (!ctx.embeds[index])
             ctx.embeds[index] = new ctx.discord.EmbedBuilder();
         ctx.embeds[index].setDescription(text);
-        ctx.embeds.filter(Boolean);
+        ctx.embeds = ctx.embeds.filter(Boolean);
         return {
             result: void 0
         };
