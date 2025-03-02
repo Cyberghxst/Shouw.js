@@ -1,5 +1,5 @@
 import type { Channel, JSONEncodable, APIActionRowComponent, APIMessageActionRowComponent, ActionRowData, MessageActionRowComponentData, MessageActionRowComponentBuilder } from 'discord.js';
-import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions } from '../typings';
+import type { CommandData, HelpersData, ExtraOptionsData, TemporarilyData, InterpreterOptions } from '../typings';
 import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
 import * as Discord from 'discord.js';
 export declare class Interpreter {
@@ -14,10 +14,8 @@ export declare class Interpreter {
     user?: Discord.User;
     context?: Context;
     args?: string[];
-    content: string | undefined;
     embeds: Discord.EmbedBuilder[];
     attachments: Discord.AttachmentBuilder[];
-    components: readonly (JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>> | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder> | APIActionRowComponent<APIMessageActionRowComponent>)[];
     stickers: Discord.Sticker[];
     flags: number | string | bigint | undefined;
     message: Discord.Message | undefined;
@@ -25,11 +23,14 @@ export declare class Interpreter {
     helpers: HelpersData;
     Temporarily: TemporarilyData;
     discord: typeof Discord;
-    constructor(cmd: CommandData, options: InterpreterOptions);
+    readonly extras: ExtraOptionsData;
+    components: readonly (JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>> | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder> | APIActionRowComponent<APIMessageActionRowComponent>)[];
+    constructor(cmd: CommandData, options: InterpreterOptions, extras?: ExtraOptionsData);
     initialize(): Promise<{
-        error: boolean;
-        id: string | undefined;
-        result: string | null;
+        id?: string;
+        result?: undefined | string;
+        error?: boolean;
+        data?: object;
     }>;
     private unpack;
     private extractArguments;

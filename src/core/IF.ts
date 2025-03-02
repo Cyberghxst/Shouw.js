@@ -38,7 +38,14 @@ export async function IF(
                         name: 'if',
                         type: 'parsing'
                     },
-                    ctx as Interpreter
+                    ctx as Interpreter,
+                    {
+                        sendMessage: false,
+                        returnId: false,
+                        returnResult: true,
+                        returnError: false,
+                        returnData: false
+                    }
                 ).initialize()
             ).result === 'true';
 
@@ -99,7 +106,14 @@ export async function IF(
                                     name: 'if',
                                     type: 'parsing'
                                 },
-                                ctx as Interpreter
+                                ctx as Interpreter,
+                                {
+                                    sendMessage: false,
+                                    returnId: false,
+                                    returnResult: true,
+                                    returnError: false,
+                                    returnData: false
+                                }
                             ).initialize()
                         ).result === 'true';
 

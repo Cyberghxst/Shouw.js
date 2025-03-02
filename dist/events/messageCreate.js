@@ -43,6 +43,12 @@ async function Events(message, client) {
             guild: message.guild,
             user: message.author,
             member: message.member
+        }, {
+            sendMessage: true,
+            returnId: false,
+            returnResult: false,
+            returnError: false,
+            returnData: false
         }).initialize();
     }
 }

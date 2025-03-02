@@ -69,4 +69,11 @@ export interface ShouwClientOptions extends DiscordType.ClientOptions {
     events: Array<keyof DiscordType.ClientEvents>;
     prefix: string | string[];
 }
+export interface ExtraOptionsData {
+    sendMessage?: boolean;
+    returnId?: boolean;
+    returnResult?: boolean;
+    returnError?: boolean;
+    returnData?: boolean;
+}
 export {};

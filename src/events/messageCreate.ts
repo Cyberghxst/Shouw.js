@@ -38,13 +38,23 @@ export default async function Events(message: Message, client: ShouwClient) {
         const command = commands?.find((cmd) => cmd.name === commandName || cmd.aliases?.includes(commandName));
         if (!command) break;
 
-        await new Interpreter(command, {
-            context: new Context(message, args),
-            client: client,
-            channel: message.channel,
-            guild: message.guild,
-            user: message.author,
-            member: message.member
-        } as InterpreterOptions).initialize();
+        await new Interpreter(
+            command,
+            {
+                context: new Context(message, args),
+                client: client,
+                channel: message.channel,
+                guild: message.guild,
+                user: message.author,
+                member: message.member
+            } as InterpreterOptions,
+            {
+                sendMessage: true,
+                returnId: false,
+                returnResult: false,
+                returnError: false,
+                returnData: false
+            }
+        ).initialize();
     }
 }

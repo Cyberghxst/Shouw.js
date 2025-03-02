@@ -25,7 +25,13 @@ async function IF(code, ctx) {
             code: `$checkCondition[${condition}]`,
             name: 'if',
             type: 'parsing'
-        }, ctx).initialize()).result === 'true';
+        }, ctx, {
+            sendMessage: false,
+            returnId: false,
+            returnResult: true,
+            returnError: false,
+            returnData: false
+        }).initialize()).result === 'true';
         const elseIfBlocks = {};
         const elseIfMatches = statement.match(/\$elseif/gi);
         if (elseIfMatches) {
@@ -68,7 +74,13 @@ async function IF(code, ctx) {
                         code: `$checkCondition[${elseifCondition}]`,
                         name: 'if',
                         type: 'parsing'
-                    }, ctx).initialize()).result === 'true';
+                    }, ctx, {
+                        sendMessage: false,
+                        returnId: false,
+                        returnResult: true,
+                        returnError: false,
+                        returnData: false
+                    }).initialize()).result === 'true';
                     if (elseifConditionResult) {
                         isConditionPassed = true;
                         finalCode = elseifCode;

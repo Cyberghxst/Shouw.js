@@ -10,7 +10,14 @@ import type {
     MessageActionRowComponentData,
     MessageActionRowComponentBuilder
 } from 'discord.js';
-import type { CommandData, HelpersData, TemporarilyData, InterpreterOptions, FunctionData } from '../typings';
+import type {
+    CommandData,
+    HelpersData,
+    ExtraOptionsData,
+    TemporarilyData,
+    InterpreterOptions,
+    FunctionData
+} from '../typings';
 import type { Context, FunctionsManager, ShouwClient as Client } from '../classes';
 
 // import modules.
@@ -32,14 +39,8 @@ export class Interpreter {
     public user?: Discord.User;
     public context?: Context;
     public args?: string[];
-    public content: string | undefined;
     public embeds: Discord.EmbedBuilder[];
     public attachments: Discord.AttachmentBuilder[];
-    public components: readonly (
-        | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>
-        | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
-        | APIActionRowComponent<APIMessageActionRowComponent>
-    )[];
     public stickers: Discord.Sticker[];
     public flags: number | string | bigint | undefined;
     public message: Discord.Message | undefined;
@@ -47,8 +48,14 @@ export class Interpreter {
     public helpers: HelpersData;
     public Temporarily: TemporarilyData;
     public discord: typeof Discord = Discord;
+    public readonly extras: ExtraOptionsData;
+    public components: readonly (
+        | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>
+        | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
+        | APIActionRowComponent<APIMessageActionRowComponent>
+    )[];
 
-    constructor(cmd: CommandData, options: InterpreterOptions) {
+    constructor(cmd: CommandData, options: InterpreterOptions, extras?: ExtraOptionsData) {
         this.client = options.client;
         this.functions = this.client.functions;
         this.debug = options.debug;
@@ -60,7 +67,6 @@ export class Interpreter {
         this.user = options.user;
         this.context = options.context;
         this.args = options.args;
-        this.content = void 0;
         this.embeds = [];
         this.attachments = [];
         this.components = [];
@@ -82,6 +88,15 @@ export class Interpreter {
                 randoms: {},
                 timezone: 'UTC'
             } as TemporarilyData);
+        this.extras =
+            (extras as ExtraOptionsData) ??
+            ({
+                sendMessage: true,
+                returnId: false,
+                returnResult: true,
+                returnError: false,
+                returnData: false
+            } as ExtraOptionsData);
     }
 
     // initialized the interpreter to run the code.
@@ -107,8 +122,10 @@ export class Interpreter {
 
                 const unpacked = this.unpack(func, currentCode);
                 if (!unpacked.all) continue;
+
                 const functionData: FunctionData | undefined = this.functions.get(func);
                 if (!functionData || !functionData.code || typeof functionData.code !== 'function') continue;
+
                 if (functionData.brackets && !unpacked.brackets) {
                     const funcWithParams = `${func}[${functionData.params?.map((x) => x.name).join(';')}]`;
                     await this.error({
@@ -182,6 +199,7 @@ export class Interpreter {
         this.code = result;
 
         if (
+            this.extras.sendMessage === true &&
             error === false &&
             ((this.code && this.code !== '') ||
                 this.components.length > 0 ||
@@ -202,11 +220,34 @@ export class Interpreter {
             })) as Discord.Message;
         }
 
-        return {
-            error: error,
-            id: this.message?.id,
-            result: error ? null : this.code
-        };
+        const resultObject: {
+            id?: string;
+            result?: undefined | string;
+            error?: boolean;
+            data?: object;
+        } = {};
+
+        if (this.extras.returnId === true && this.message instanceof Discord.Message) {
+            resultObject.id = this.message?.id;
+        }
+        if (this.extras.returnResult === true) {
+            resultObject.result = error ? void 0 : this.code;
+        }
+        if (this.extras.returnError === true) {
+            resultObject.error = error;
+        }
+        if (this.extras.returnData === true) {
+            resultObject.data = {
+                ...this.Temporarily,
+                embeds: this.embeds,
+                components: this.components,
+                attachments: this.attachments,
+                flags: this.flags,
+                args: this.args
+            };
+        }
+
+        return resultObject;
     }
 
     // unpacking the parameters of the function.
@@ -313,7 +354,7 @@ export class Interpreter {
                 }
             }
 
-            if (lineFunctions.length > 0) functions.push(...lineFunctions.reverse());
+            if (lineFunctions.length > 0) functions.push(...lineFunctions);
         }
 
         return functions;
